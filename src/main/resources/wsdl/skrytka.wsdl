@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="skrytka" targetNamespace="http://ws.epuap.gov.pl/skrytka/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:ext="http://wsdl.epuap.gov.pl/obiekty/ext/"
+	xmlns:ob="http://wsdl.epuap.gov.pl/obiekty/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://ws.epuap.gov.pl/skrytka/" 
+	xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext"
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<documentation>Wersja 1.2 z dnia 28.07.2008</documentation>
+
+	<import location="sign-policy.wsdl" namespace="http://www.sejm.gov.pl/epuap/sign-policy/" />
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/obiekty/"
+				schemaLocation="obiektypk.xsd" />
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/obiekty/ext/"
+				schemaLocation="obiektyExt.xsd" />
+		</xsd:schema>
+	</types>
+
+	<message name="nadajFaultMsg">
+		<part element="ob:Wyjatek" name="faultStatus">
+		</part>
+	</message>
+
+	<message name="nadajAnyRequest">
+		<part element="ob:IdentyfikatorPodmiotu" name="podmiot">
+			<documentation>Podmiot, w kontekscie ktorego nadawany jest dokument.
+			</documentation>
+		</part>
+		<part element="ob:AdresSkrytki" name="adresSkrytki">
+			<documentation>Adres skrytki odbiorcy</documentation>
+		</part>
+		<part element="ob:AdresOdpowiedzi" name="adresOdpowiedzi">
+			<documentation>Adres skrytki nadawcy, na ktory maja byc przysylane
+				odpowiedzi w sprawie.
+			</documentation>
+		</part>
+		<part element="ob:CzyProbne" name="czyProbne">
+			<documentation>Czy to jest nadanie probne?</documentation>
+		</part>
+		<part element="ob:DaneDodatkowe" name="daneDodatkowe">
+			<documentation>Dodatkowe dane w formacie XML</documentation>
+		</part>
+		<part element="ob:NazwaPliku" name="nazwaPliku">
+			<documentation>Nazwa przesylanego pliku</documentation>
+		</part>
+		<part element="ext:Dokument" name="dokument">
+			<documentation>Przesylany dokument (anyType) </documentation>
+		</part>
+	</message>
+
+	<message name="nadajResponse">
+		<part element="ob:OdpowiedzSkrytki" name="odpowiedz">
+		</part>
+	</message>
+
+	<message name="nadajRequest">
+		<part element="ob:IdentyfikatorPodmiotu" name="podmiot">
+			<documentation>Podmiot, w kontekscie ktorego nadawany jest dokument.
+			</documentation>
+		</part>
+		<part element="ob:AdresSkrytki" name="adresSkrytki">
+			<documentation>Adres skrytki odbiorcy</documentation>
+		</part>
+		<part element="ob:AdresOdpowiedzi" name="adresOdpowiedzi">
+			<documentation>Adres skrytki nadawcy, na ktory maja byc przysylane
+				odpowiedzi w sprawie.
+			</documentation>
+		</part>
+		<part element="ob:CzyProbne" name="czyProbne">
+			<documentation>Czy to jest nadanie probne?</documentation>
+		</part>
+		<part element="ob:DaneDodatkowe" name="daneDodatkowe">
+			<documentation>Dodatkowe dane w formacie XML</documentation>
+		</part>
+		<part element="ob:Dokument" name="dokument">
+			<documentation>Przesylany dokument, wraz z ewentualnymi zalacznikami
+			</documentation>
+		</part>
+	</message>
+
+	<portType name="skrytka">
+		<documentation>Interfejs do nadawania dokumentow na skrytke
+		</documentation>
+		<operation name="nadaj">
+			<documentation>Nadanie (przedlozenie) dokumentu na skrytke odbiorcy.
+				Parametry:
+				podmiot - identyfikator podmiotu, w imieniu ktorego
+				przekazywany jest
+				dokument
+				adresSkrytki - adres skrytki adresata
+				adresOdpowiedzi - adres skrytki nadawcy, przeznaczonej na odpowiedzi
+				czyProbne - czy nadanie bez przekazywania dokumentu do odbiorcy
+				dokument - przekazywany dokument XML
+			</documentation>
+			<input message="tns:nadajRequest">
+			</input>
+			<output message="tns:nadajResponse">
+			</output>
+			<fault message="tns:nadajFaultMsg" name="fault">
+			</fault>
+		</operation>
+		<operation name="nadajAny">
+			<documentation>Nadanie (przedlozenie) dokumentu na skrytke odbiorcy.
+				Parametry:
+				podmiot - identyfikator podmiotu, w imieniu ktorego
+				przekazywany jest
+				dokument
+				adresSkrytki - adres skrytki adresata
+				adresOdpowiedzi - adres skrytki nadawcy, przeznaczonej na odpowiedzi
+				czyProbne - czy nadanie bez przekazywania dokumentu do odbiorcy
+				nazwaPliku - nazwa przesylanego pliku xml
+				dokument - przekazywany
+				dokument (anyType)
+			</documentation>
+			<input message="tns:nadajAnyRequest">
+			</input>
+			<output message="tns:nadajResponse">
+			</output>
+			<fault message="tns:nadajFaultMsg" name="fault">
+			</fault>
+		</operation>
+	</portType>
+
+	<binding name="skrytkaBinding" type="tns:skrytka">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="nadaj">
+			<soap:operation soapAction="http://ws.epuap.gov.pl/skrytka/nadaj" />
+			<input>
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+					URI="#Sign" />
+				<soap:header message="tns:nadajRequest" part="podmiot"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajRequest" part="adresSkrytki"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajRequest" part="adresOdpowiedzi"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajRequest" part="czyProbne"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajRequest" part="daneDodatkowe"
+					use="literal">
+				</soap:header>
+				<soap:body parts="dokument" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="odpowiedz" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="nadajAny">
+			<soap:operation soapAction="http://ws.epuap.gov.pl/skrytka/nadajAny" />
+			<input>
+				<soap:header message="tns:nadajAnyRequest" part="podmiot"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajAnyRequest" part="adresSkrytki"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajAnyRequest" part="adresOdpowiedzi"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajAnyRequest" part="czyProbne"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajAnyRequest" part="daneDodatkowe"
+					use="literal">
+				</soap:header>
+				<soap:header message="tns:nadajAnyRequest" part="nazwaPliku"
+					use="literal">
+				</soap:header>
+				<soap:body parts="dokument" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="odpowiedz" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="pkSkrytkaService">
+		<port binding="tns:skrytkaBinding" name="skrytka">
+			<soap:address location="https://epuap.gov.pl/pk_external_ws/services/skrytka" />
+		</port>
+	</service>
+
+</definitions>

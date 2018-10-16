@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://wsdl.epuap.gov.pl/obiekty/" version="1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://wsdl.epuap.gov.pl/obiekty/" xmlns:xmime="http://www.w3.org/2005/05/xmlmime">
+    <annotation>
+    	<documentation>Wersja 1.2 z dnia 28.07.2008</documentation>
+    	<appinfo>$Revision: 1.10 $</appinfo>
+    </annotation>
+    <!-- Typy proste -->
+	<simpleType name="IdentyfikatorPodmiotuTyp">
+		<restriction base="string">
+			<maxLength value="100"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="IdentyfikatorDokumentuTyp">
+		<restriction base="string"/>
+	</simpleType>
+    <!-- Typy zlozone -->
+    <complexType name="StatusTyp">
+		<sequence>
+			<element name="kod" type="int"/>
+			<element name="komunikat" nillable="true" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="WyjatekTyp">
+		<sequence>
+			<element name="kod" type="int"/>
+			<element name="komunikat" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="DaneNadawcyTyp">
+		<sequence>
+			<element minOccurs="0" name="uzytkownik" type="string">
+				<annotation>
+					<documentation>Identyfikator (login) u&#380;ytkownika</documentation>
+				</annotation>
+			</element>
+			<element minOccurs="0" name="system" type="string">
+				<annotation>
+					<documentation>Identyfikator systemu</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="DanePodmiotuTyp">
+		<sequence>
+			<element name="identyfikator" type="string">
+				<annotation>
+					<documentation>Identyfikator podmiotu, w imieniu ktorego dziala uzytkownik</documentation>
+				</annotation>
+			</element>
+			<element name="typOsoby" type="string">
+				<annotation>
+					<documentation>P - prawna, F - osoba fizyczna</documentation>
+				</annotation>
+			</element>
+			<element minOccurs="0" name="imieSkrot" type="string"/>
+			<element minOccurs="0" name="nazwiskoNazwa" type="string"/>
+			<element minOccurs="0" name="nip" type="string"/>
+			<element minOccurs="0" name="pesel" type="string"/>
+			<element minOccurs="0" name="regon" type="string"/>
+			<element name="zgoda" type="boolean">
+				<annotation>
+					<documentation>Czy jest zgoda na otrzymywanie korespondencji droga elektroniczna?</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="DokumentTyp">
+		<sequence>
+			<element name="nazwaPliku" type="string"/>
+			<element minOccurs="0" name="typPliku" type="string"/>
+			<element name="zawartosc" type="base64Binary"/>
+		</sequence>
+	</complexType>
+	<complexType name="UzytkownikTyp">
+		<sequence>
+			<element name="identyfikator" type="string"/>
+			<element name="typIdentyfikatora" type="string"/>
+			<element name="nazwa" type="string"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="OdpowiedzSkrytkiTyp">
+		<sequence>
+			<element name="status" type="ns:StatusTyp"/>
+			<element name="identyfikatorDokumentu" type="ns:IdentyfikatorDokumentuTyp"/>
+			<element maxOccurs="1" minOccurs="0" name="identyfikatorUpp" type="ns:IdentyfikatorDokumentuTyp"/>
+			<element minOccurs="0" name="statusOdbiorcy" type="ns:StatusTyp"/>
+			<element minOccurs="0" name="zalacznik" type="ns:DokumentTyp"/>
+		</sequence>
+	</complexType>
+	<complexType name="OdpowiedzDoreczycielaTyp">
+		<sequence>
+			<element name="status" type="ns:StatusTyp"/>
+			<element name="identyfikatorDokumentu" nillable="true" type="ns:IdentyfikatorDokumentuTyp"/>
+			<element name="identyfikatorZlecenia" nillable="true" type="string"/>
+		</sequence>
+	</complexType>
+	<complexType name="OdpowiedzOdbiorcyTyp">
+		<sequence>
+			<element name="status" type="ns:StatusTyp"/>
+			<element minOccurs="0" name="zalacznik" type="ns:DokumentTyp"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ZapytaniePullTyp">
+        <annotation>
+        	<documentation>
+        		Ogolny, abstrakcyjny typ zapytania metod PULL
+        		Poszczegolne zapytania metod PULL dziedzicza z tego typu.
+        	</documentation>
+        </annotation>
+        <sequence>
+			<element name="podmiot" type="ns:IdentyfikatorPodmiotuTyp"/>
+			<element name="nazwaSkrytki" type="string"/>
+			<element name="adresSkrytki" type="string"/>
+		</sequence>
+	</complexType>	
+	
+	<complexType name="ZapytaniePullOczekujaceTyp">
+		<complexContent>
+			<extension base="ns:ZapytaniePullTyp"/>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ZapytaniePullPobierzTyp">
+		<complexContent>
+			<extension base="ns:ZapytaniePullTyp"/>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ZapytaniePullPotwierdzTyp">
+		<complexContent>
+			<extension base="ns:ZapytaniePullTyp">
+				<sequence>
+					<element name="skrot" type="string"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="OdpowiedzPullTyp">
+        <annotation>
+        	<documentation>
+        		Ogolny, abstrakcyjny typ odpowiedzi metod PULL
+        		Poszczegolne odpowiedzi metod PULL dziedzicza z	tego typu.
+        	</documentation>
+        </annotation>
+        <sequence>
+			<element name="status" type="ns:StatusTyp"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="OdpowiedzPullOczekujaceTyp">
+		<complexContent>
+			<extension base="ns:OdpowiedzPullTyp">
+				<sequence>
+					<element name="oczekujace" type="int"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="OdpowiedzPullPobierzTyp">
+		<complexContent>
+			<extension base="ns:OdpowiedzPullTyp">
+				<sequence>
+					<element name="danePodmiotu" type="ns:DanePodmiotuTyp"/>
+					<element name="daneNadawcy" type="ns:DaneNadawcyTyp"/>
+					<element name="dataNadania" type="dateTime"/>
+					<element name="nazwaSkrytki" type="string"/>
+					<element name="adresSkrytki" type="string"/>
+					<element name="adresOdpowiedzi" nillable="true" type="string"/>
+					<element name="czyTestowe" type="boolean"/>
+					<element name="daneDodatkowe" type="base64Binary"/>
+					<element name="dokument" type="ns:DokumentTyp"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="OdpowiedzPullPotwierdzTyp">
+		<complexContent>
+			<extension base="ns:OdpowiedzPullTyp"/>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="ZapytanieDajUppTyp">
+    <sequence>
+			<element name="podmiot" type="ns:IdentyfikatorPodmiotuTyp"/>
+			<element name="nadawca" type="ns:UzytkownikTyp"/>
+			<element name="dokument" type="ns:DokumentTyp"/>
+		</sequence>
+	</complexType>	
+	
+	<complexType name="ZapytanieDajUppPrzeslijTyp">
+    <sequence>
+			<element name="podmiot" type="ns:IdentyfikatorPodmiotuTyp"/>
+			<element name="adresSkrytki" type="string"/>
+			<element name="adresOdpowiedzi" type="string"/>
+			<element name="dokument" type="ns:DokumentTyp"/>
+		</sequence>
+	</complexType>	
+	
+	<complexType name="OdpowiedzDajUppTyp">
+		<sequence>
+			<element name="status" type="ns:StatusTyp"/>
+			<element minOccurs="0" name="upp" type="ns:DokumentTyp"/>
+		</sequence>
+	</complexType>
+	
+	
+	
+	<!-- Elementy -->
+	<element name="StatusSkrytki" type="ns:StatusTyp"/>
+	<element name="StatusOdbiorcy" type="ns:StatusTyp"/>
+	<element name="StatusDoreczyciela" type="ns:StatusTyp"/>
+	<element name="Wyjatek" type="ns:WyjatekTyp"/>
+	<element name="DaneNadawcy" type="ns:DaneNadawcyTyp"/>
+	<element name="DaneNadawcyAny" type="ns:DaneNadawcyTyp"/>
+	<element name="DanePodmiotu" type="ns:DanePodmiotuTyp"/>
+	<element name="DanePodmiotuAny" type="ns:DanePodmiotuTyp"/>
+	<element name="Dokument" type="ns:DokumentTyp"/>
+	<element name="UPD" type="ns:DokumentTyp"/>
+	<element name="DataNadania" type="dateTime">
+		<annotation>
+			<documentation>Data i czas nadania dokumentu na skrytke</documentation>
+		</annotation>
+	</element>
+	<element name="DataNadaniaAny" type="dateTime"/>
+	<element name="NazwaSkrytki" type="string">
+		<annotation>
+			<documentation>Nazwa skrytki</documentation>
+		</annotation>
+	</element>
+	<element name="NazwaSkrytkiAny" type="string"/>
+	<element name="AdresSkrytki" type="string">
+		<annotation>
+			<documentation>Adres skrytki</documentation>
+		</annotation>
+	</element>
+	<element name="AdresSkrytkiAny" type="string"/>
+	<element name="AdresOdpowiedzi" type="string">
+		<annotation>
+			<documentation>Adres skrytki zwrotnej (na odpowiedzi)</documentation>
+		</annotation>
+	</element>
+	<element name="AdresOdpowiedziAny" type="string"/>
+	<element name="DaneDodatkowe" type="base64Binary" xmime:expectedContentTypes="text/xml">
+		<annotation>
+			<documentation>Dodatkowe dane dowolnego typu</documentation>
+		</annotation>
+	</element>
+	<element name="DaneDodatkoweAny" type="base64Binary" xmime:expectedContentTypes="text/xml"/>
+	<element name="OdpowiedzSkrytki" type="ns:OdpowiedzSkrytkiTyp"/>
+	<element name="OdpowiedzDoreczyciela" type="ns:OdpowiedzDoreczycielaTyp"/>
+	<element name="OdpowiedzOdbiorcy" type="ns:OdpowiedzOdbiorcyTyp"/>
+	
+	<element name="ZapytaniePullOczekujace" type="ns:ZapytaniePullOczekujaceTyp"/>
+	<element name="ZapytaniePullPobierz" type="ns:ZapytaniePullPobierzTyp"/>
+	<element name="ZapytaniePullPotwierdz" type="ns:ZapytaniePullPotwierdzTyp"/>
+	
+	<element name="OdpowiedzPullOczekujace" type="ns:OdpowiedzPullOczekujaceTyp"/>
+	<element name="OdpowiedzPullPobierz" type="ns:OdpowiedzPullPobierzTyp"/>
+	<element name="OdpowiedzPullPotwierdz" type="ns:OdpowiedzPullPotwierdzTyp"/>
+	
+	<element name="ZapytanieDajUpp" type="ns:ZapytanieDajUppTyp"/>
+	<element name="ZapytanieDajUppPrzeslij" type="ns:ZapytanieDajUppPrzeslijTyp"/>
+	<element name="OdpowiedzDajUpp" type="ns:OdpowiedzDajUppTyp"/>
+	
+	<element name="IdentyfikatorPodmiotu" type="ns:IdentyfikatorPodmiotuTyp"/>
+	<element name="PodmiotOdbierajacy" type="ns:IdentyfikatorPodmiotuTyp"/>
+	<element name="TGSID" type="string"/>
+	<element name="IdentyfikatorDokumentu" type="ns:IdentyfikatorDokumentuTyp"/>
+	<element name="IdentyfikatorSprawy" type="string"/>
+	<element name="IdentyfikatorUpp" type="ns:IdentyfikatorDokumentuTyp"/>
+
+	<element name="CzynnoscPull" type="short"/>
+	<element name="SkrotDokumentu" type="string"/>
+	<element name="CzyTestowe" type="boolean"/>
+	<element name="CzyTestoweAny" type="boolean"/>
+	<element name="CzyProbne" type="boolean"/>
+	<element name="TerminDoreczenia" type="dateTime"/>
+	<element name="NazwaPliku" type="string"/>
+	<element name="NazwaPlikuAny" type="string"/>
+	<element name="DokumentAny" type="anyType"/>
+
+</schema>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions 
+	name="pull" 
+	targetNamespace="http://ws.epuap.gov.pl/pull/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:ob="http://wsdl.epuap.gov.pl/obiekty/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:tns="http://ws.epuap.gov.pl/pull/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<documentation>Wersja 1.2 z dnia 28.07.2008</documentation>
+	
+	<import location="sign-policy.wsdl" namespace="http://www.sejm.gov.pl/epuap/sign-policy/" />
+
+	<types>
+		<xsd:schema targetNamespace="http://ws.epuap.gov.pl/pull/">
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/obiekty/"
+				schemaLocation="obiektypk.xsd" />
+		</xsd:schema>
+	</types>
+	<message name="pullFaultMsg">
+		<part element="ob:Wyjatek" name="faultStatus">
+		</part>
+	</message>
+	<message name="pullPobierzNastepnyRequestMsg">
+		<part element="ob:ZapytaniePullPobierz" name="zapytaniePobierz">
+		</part>
+	</message>
+	<message name="pullOczekujaceDokumentyRequestMsg">
+		<part element="ob:ZapytaniePullOczekujace" name="zapytanieOczekujace">
+		</part>
+	</message>
+	<message name="pullOczekujaceDokumentyResponseMsg">
+		<part element="ob:OdpowiedzPullOczekujace" name="odpowiedzOczekujace">
+		</part>
+	</message>
+	<message name="pullPotwierdzOdebranieRequestMsg">
+		<part element="ob:ZapytaniePullPotwierdz" name="zapytaniePotwierdz">
+		</part>
+	</message>
+	<message name="pullPobierzNastepnyResponseMsg">
+		<part element="ob:OdpowiedzPullPobierz" name="odpowiedzPobierz">
+		</part>
+	</message>
+	<message name="pullPotwierdzOdebranieResponseMsg">
+		<part element="ob:OdpowiedzPullPotwierdz" name="odpowiedzPotwierdz">
+		</part>
+	</message>
+	
+	<portType name="pull">
+		<documentation>Obsluga pobierania dokumentow ze skrytki asynchonicznej
+			w trybie PULL
+		</documentation>
+		<operation name="oczekujaceDokumenty">
+			<documentation>Pobranie liczby oczekujacych dokumentow w kolejce
+			</documentation>
+			<input message="tns:pullOczekujaceDokumentyRequestMsg" name="oczekujaceDokumentyRequest">
+			</input>
+			<output message="tns:pullOczekujaceDokumentyResponseMsg" name="oczekujaceDokumentyResponse">
+			</output>
+			<fault message="tns:pullFaultMsg" name="oczekujaceDokumentyFault">
+			</fault>
+		</operation>
+		<operation name="pobierzNastepny">
+			<documentation>Pobranie kolejnego dokumentu z kolejki</documentation>
+			<input message="tns:pullPobierzNastepnyRequestMsg" name="pobierzNastepnyRequest">
+			</input>
+			<output message="tns:pullPobierzNastepnyResponseMsg" name="pobierzNastepnyResponse">
+			</output>
+			<fault message="tns:pullFaultMsg" name="pobierzNastepnyFault">
+			</fault>
+		</operation>
+		<operation name="potwierdzOdebranie">
+			<documentation>Potwierdzenie odebrania dokumentu (usuniecie z
+				kolejki)
+			</documentation>
+			<input message="tns:pullPotwierdzOdebranieRequestMsg" name="potwierdzOdebranieRequest">
+			</input>
+			<output message="tns:pullPotwierdzOdebranieResponseMsg" name="potwierdzOdebranieResponse">
+			</output>
+			<fault message="tns:pullFaultMsg" name="potwierdzOdebranieFault">
+			</fault>
+		</operation>
+	</portType>
+	
+	<binding name="pull" type="tns:pull">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+			
+		<operation name="oczekujaceDokumenty">
+			<soap:operation soapAction="http://ws.epuap.gov.pl/pull/oczekujaceDokumenty" />
+			<input>
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="zapytanieOczekujace" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="odpowiedzOczekujace" use="literal" />
+			</output>
+			<fault name="oczekujaceDokumentyFault">
+				<soap:fault name="oczekujaceDokumentyFault" use="literal" />
+			</fault>
+		</operation>
+		
+		<operation name="pobierzNastepny">
+			<soap:operation soapAction="http://ws.epuap.gov.pl/pull/pobierzNastepny" />
+			<input>
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="zapytaniePobierz" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="odpowiedzPobierz" use="literal" />
+			</output>
+			<fault name="pobierzNastepnyFault">
+				<soap:fault name="pobierzNastepnyFault" use="literal" />
+			</fault>
+		</operation>
+		
+		<operation name="potwierdzOdebranie">
+			<soap:operation soapAction="http://ws.epuap.gov.pl/pull/potwierdzOdebranie" />
+			<input>
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="zapytaniePotwierdz" use="literal" />
+			</input>
+			<output>
+				<soap:body parts="odpowiedzPotwierdz" use="literal" />
+			</output>
+			<fault name="potwierdzOdebranieFault">
+				<soap:fault name="potwierdzOdebranieFault" use="literal" />
+			</fault>
+		</operation>
+	</binding>
+	
+	<service name="pkPullService">
+		<port binding="tns:pull" name="pull">
+			<soap:address location="https://epuap.gov.pl/pk_external_ws/services/pull" />
+		</port>
+	</service>
+</definitions>

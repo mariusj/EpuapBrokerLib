@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="filerepo" 
+	targetNamespace="http://ws.epuap.gov.pl/filerepo/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:ob="http://wsdl.epuap.gov.pl/filerepocore/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:tns="http://ws.epuap.gov.pl/filerepo/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+	
+	<import location="sign-policy.wsdl" namespace="http://www.sejm.gov.pl/epuap/sign-policy/" />
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/filerepocore/"
+				schemaLocation="filerepocore.xsd" />
+		</xsd:schema>
+	</types>
+	
+	<message name="odbierzFaultMsg">
+		<part name="faultStatus" element="ob:WyjatekTyp">
+		</part>
+	</message>
+	
+	<message name="uploadFileRequestResponse">
+		<part name="fileId5" element="ob:fileId5">
+		</part>
+	</message>
+	
+	<message name="uploadFileRequestRequest">
+		<part name="dataDocument" element="ob:UploadFileParam">
+		</part>
+	</message>
+	
+	<message name="downloadFileResponse">
+		<part name="dataDocument" element="ob:DataDocument">
+		</part>
+	</message>
+	
+	<message name="downloadFileRequest">
+		<part name="dataDocument" element="ob:DownloadFileParam">
+		</part>
+	</message>
+	
+	<portType name="filerepo">
+		<operation name="uploadFile">
+			<input message="tns:uploadFileRequestRequest">
+			</input>
+			<output message="tns:uploadFileRequestResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="downloadFile">
+			<input message="tns:downloadFileRequest">
+			</input>
+			<output message="tns:downloadFileResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+	</portType>
+	
+	
+	<binding name="FileRepoBinding" type="tns:filerepo">
+        
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		
+		<operation name="uploadFile">
+			<soap:operation soapAction="" />
+			<input name="uploadFileRequest">
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="dataDocument" use="literal" />
+			</input>
+			<output name="uploadFileResponse">
+				<soap:body parts="fileId5" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		
+		<operation name="downloadFile">
+			<soap:operation soapAction="" />
+			<input name="downloadFileRequest">
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="dataDocument" use="literal" />
+			</input>
+			<output name="downloadFileResponse">
+				<soap:body parts="dataDocument" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+	</binding>
+	
+	<service name="FileRepoService">
+		<port name="Filerepo" binding="tns:FileRepoBinding">
+			<soap:address location="http://ws.epuap.gov.pl:80/repo-ws-ext/FileRepoService" />
+		</port>
+	</service>
+</definitions>

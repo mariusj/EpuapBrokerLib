@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema xmlns:fc="http://wsdl.epuap.gov.pl/filerepocore/" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xmime="http://www.w3.org/2005/05/xmlmime" targetNamespace="http://wsdl.epuap.gov.pl/filerepocore/">
+
+	<complexType name="WyjatekTyp">
+		<sequence>
+			<element name="kod" type="int" />
+			<element name="komunikat" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="downloadFile">
+		<sequence>
+			<element name="file" type="base64Binary"
+				xmime:expectedContentTypes="application/octet-stream" />
+			<element name="filename" type="string" />
+			<element name="mimeType" type="string" />
+			<element name="encoding" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="downloadFileParam">
+		<sequence>
+			<element name="fileId" type="string" />
+			<element name="subject" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="uploadFileParam">
+		<sequence>
+			<element name="file" type="base64Binary"
+				xmime:expectedContentTypes="application/octet-stream" />
+			<element name="filename" type="string" />
+			<element name="mimeType" type="string" />
+			<element name="encoding" type="string" minOccurs="0" />
+			<element name="subject" type="string" />
+		</sequence>
+	</complexType>
+	<element name="WyjatekTyp" type="fc:WyjatekTyp" />
+	<element name="fileId5" type="string" />
+	<element name="deleteResult" type="boolean" />
+	<element name="DataDocument" type="fc:downloadFile" />
+	<element name="UploadFileParam" type="fc:uploadFileParam" />
+	<element name="DownloadFileParam" type="fc:downloadFileParam" />
+</schema>

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="esd" targetNamespace="http://ws.epuap.gov.pl/esd/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:ob="http://wsdl.epuap.gov.pl/fecore/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://ws.epuap.gov.pl/esd/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<import location="sign-policy.wsdl" namespace="http://www.sejm.gov.pl/epuap/sign-policy/" />
+
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/fecore/"
+				schemaLocation="fecore.xsd" />
+		</xsd:schema>
+	</types>
+	<message name="pobierzDomyslnySkladRequest">
+		<part name="tgsid" element="ob:tgsid2">
+		</part>
+	</message>
+	<message name="pobierzListeSkladowPodmiotuResponse">
+		<part name="listaWarehouse" element="ob:ListaWarehouse">
+		</part>
+	</message>
+	<message name="weryfikujPodpisKaskadowoResponse">
+		<part name="compositeDocumentVerificationResult" element="ob:CompositeDocumentVerificationResult">
+		</part>
+	</message>
+	<message name="pobierzDokumentRequest">
+		<part name="tgsidDocument" element="ob:TgsidDocument">
+		</part>
+	</message>
+	<message name="pobierzDomyslnySkladResponse">
+		<part name="warehouseId" element="ob:WarehouseId">
+		</part>
+	</message>
+	<message name="pobierzDokumentResponse">
+		<part name="plik" element="ob:PaczkaPlikow">
+		</part>
+	</message>
+	<message name="weryfikujPodpisResponse">
+		<part name="compositeDocumentVerificationResult" element="ob:CompositeDocumentVerificationResult">
+		</part>
+	</message>
+	<message name="weryfikujPodpisKaskadowoRequest">
+		<part name="tgsidDocumentFile" element="ob:TgsidDocument5">
+		</part>
+	</message>
+	<message name="pobierzListeDokumentowSkladuResponse">
+		<part name="listaDocument" element="ob:ListaDocument">
+		</part>
+	</message>
+	<message name="wyslijDokumentResponse">
+		<part name="documentId" element="ob:DocumentId">
+		</part>
+	</message>
+	<message name="weryfikujZalacznikRequest">
+		<part name="tgsidDocumentAndAttachmentFile" element="ob:TgsidDocument6">
+		</part>
+	</message>
+	<message name="pobierzListeDokumentowSkladuRequest">
+		<part name="tgsidWarehouse" element="ob:TgsidWarehouse">
+		</part>
+	</message>
+	<message name="pobierzListeSkladowPodmiotuRequest">
+		<part name="tgsid" element="ob:tgsid">
+		</part>
+	</message>
+	<message name="weryfikujZalacznikResponse">
+		<part name="compositeDocumentVerificationResult" element="ob:CompositeDocumentVerificationResult">
+		</part>
+	</message>
+	<message name="wyslijDokumentRequest">
+		<part name="tgsidDocumentFile" element="ob:TgsidDocumentFile">
+		</part>
+	</message>
+	<message name="usunDokumentRequest">
+		<part name="tgsidDocument3" element="ob:TgsidDocument3">
+		</part>
+	</message>
+	<message name="usunDokumentResponse">
+		<part name="usunDokument" element="ob:UsunDokument">
+		</part>
+	</message>
+	<message name="odbierzFaultMsg">
+		<part name="faultStatus" element="ob:WyjatekTyp">
+		</part>
+	</message>
+	<message name="weryfikujPodpisRequest">
+		<part name="tgsidDocumentFile" element="ob:TgsidDocument4">
+		</part>
+	</message>
+	<portType name="esd">
+		<operation name="pobierzListeSkladowPodmiotu">
+			<input message="tns:pobierzListeSkladowPodmiotuRequest">
+			</input>
+			<output message="tns:pobierzListeSkladowPodmiotuResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="pobierzDomyslnySklad">
+			<input message="tns:pobierzDomyslnySkladRequest">
+			</input>
+			<output message="tns:pobierzDomyslnySkladResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="pobierzListeDokumentowSkladu">
+			<input message="tns:pobierzListeDokumentowSkladuRequest">
+			</input>
+			<output message="tns:pobierzListeDokumentowSkladuResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="pobierzDokument">
+			<input message="tns:pobierzDokumentRequest">
+			</input>
+			<output message="tns:pobierzDokumentResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="wyslijDokument">
+			<input message="tns:wyslijDokumentRequest">
+			</input>
+			<output message="tns:wyslijDokumentResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="usunDokument">
+			<input message="tns:usunDokumentRequest">
+			</input>
+			<output message="tns:usunDokumentResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="weryfikujPodpis">
+			<input message="tns:weryfikujPodpisRequest">
+			</input>
+			<output message="tns:weryfikujPodpisResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="weryfikujPodpisKaskadowo">
+			<input message="tns:weryfikujPodpisKaskadowoRequest">
+			</input>
+			<output message="tns:weryfikujPodpisKaskadowoResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+		<operation name="weryfikujZalacznik">
+			<input message="tns:weryfikujZalacznikRequest">
+			</input>
+			<output message="tns:weryfikujZalacznikResponse">
+			</output>
+			<fault name="fault" message="tns:odbierzFaultMsg">
+			</fault>
+		</operation>
+	</portType>
+	<binding name="EsdBinding" type="tns:esd">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<operation name="pobierzListeSkladowPodmiotu">
+			<soap:operation soapAction="" />
+			<input name="pobierzListeSkladowPodmiotuRequest">
+				<wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+		        URI="#Sign"/>
+				<soap:body parts="tgsid" use="literal" />
+			</input>
+			<output name="pobierzListeSkladowPodmiotuResponse">
+				<soap:body parts="listaWarehouse" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="pobierzDomyslnySklad">
+			<soap:operation soapAction="" />
+			<input name="pobierzDomyslnySkladRequest">
+				<soap:body parts="tgsid" use="literal" />
+			</input>
+			<output name="pobierzDomyslnySkladResponse">
+				<soap:body parts="warehouseId" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="pobierzListeDokumentowSkladu">
+			<soap:operation soapAction="" />
+			<input name="pobierzListeDokumentowSkladuRequest">
+				<soap:body parts="tgsidWarehouse" use="literal" />
+			</input>
+			<output name="pobierzListeDokumentowSkladuResponse">
+				<soap:body parts="listaDocument" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="pobierzDokument">
+			<soap:operation soapAction="" />
+			<input name="pobierzDokumentRequest">
+				<soap:body parts="tgsidDocument" use="literal" />
+			</input>
+			<output name="pobierzDokumentResponse">
+				<soap:body parts="plik" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="wyslijDokument">
+			<soap:operation soapAction="" />
+			<input name="wyslijDokumentRequest">
+				<soap:body parts="tgsidDocumentFile" use="literal" />
+			</input>
+			<output name="wyslijDokumentResponse">
+				<soap:body parts="documentId" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="usunDokument">
+			<soap:operation soapAction="" />
+			<input name="usunDokumentRequest">
+				<soap:body parts="tgsidDocument3" use="literal" />
+			</input>
+			<output name="usunDokumentResponse">
+				<soap:body parts="usunDokument" use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="weryfikujPodpis">
+			<soap:operation soapAction="" />
+			<input name="weryfikujPodpisRequest">
+				<soap:body parts="tgsidDocumentFile" use="literal" />
+			</input>
+			<output name="weryfikujPodpisResponse">
+				<soap:body parts="compositeDocumentVerificationResult"
+					use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="weryfikujPodpisKaskadowo">
+			<documentation>Weryfikuje podpis na dokumencie oraz kaskadowo
+				wszystkie załączniki.</documentation>
+			<soap:operation soapAction="" />
+			<input name="weryfikujPodpisKaskadowoRequest">
+				<soap:body parts="tgsidDocumentFile" use="literal" />
+			</input>
+			<output name="weryfikujPodpisKaskadowoResponse">
+				<soap:body parts="compositeDocumentVerificationResult"
+					use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="weryfikujZalacznik">
+			<documentation>Weryfikuje podpis pod załącznikiem.</documentation>
+			<soap:operation soapAction="" />
+			<input name="weryfikujZalacznikRequest">
+				<soap:body parts="tgsidDocumentAndAttachmentFile" use="literal" />
+			</input>
+			<output name="weryfikujZalacznikResponse">
+				<soap:body parts="compositeDocumentVerificationResult"
+					use="literal" />
+			</output>
+			<fault name="fault">
+				<soap:fault name="fault" use="literal" />
+			</fault>
+		</operation>
+	</binding>
+	<service name="EsdService">
+		<port name="Esd" binding="tns:EsdBinding">
+			<soap:address location="http://ws.epuap.gov.pl:80/fe-desktop-ws/EsdService" />
+		</port>
+	</service>
+</definitions>

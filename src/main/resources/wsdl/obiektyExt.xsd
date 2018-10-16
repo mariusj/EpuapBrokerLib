@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://wsdl.epuap.gov.pl/obiekty/ext/" version="1.0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://wsdl.epuap.gov.pl/obiekty/ext/" xmlns:xmime="http://www.w3.org/2005/05/xmlmime">
+    <annotation>
+    	<documentation>Wersja 1.0 z dnia 13.09.2008</documentation>
+    	<appinfo>$Revision: 1.2 $</appinfo>
+    </annotation>
+
+
+	<!-- generyczna postac Dokumentu XML                    -->
+	<element name="Dokument" type="anyType"/>
+
+	<!-- postac dokumentu XML definiowana przez uslugodawc?      -->	
+	<!-- element name="Dokument" type="ns:ProstyDokumentXMLTyp"/ -->
+
+</schema>

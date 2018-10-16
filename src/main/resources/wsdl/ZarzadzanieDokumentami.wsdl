@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<wsdl:definitions targetNamespace="http://ws.epuap.gov.pl/zarzadzanieDokumentami"
+	xmlns:impl="http://ws.epuap.gov.pl/zarzadzanieDokumentami" xmlns:intf="http://ws.epuap.gov.pl/zarzadzanieDokumentami"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:wsi="http://ws-i.org/profiles/basic/1.1/xsd" xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<wsdl:import location="sign-policy.wsdl" namespace="http://www.sejm.gov.pl/epuap/sign-policy/" />
+	
+	<wsdl:types>
+		<schema targetNamespace="http://ws.epuap.gov.pl/zarzadzanieDokumentami"
+			xmlns="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+			<element name="dodajDokument">
+				<complexType>
+					<sequence>
+						<element name="sklad" nillable="false" type="impl:SkladTyp" />
+						<element name="dokument" nillable="false" type="impl:DokumentTyp" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="dodajDokumentResponse">
+				<complexType>
+					<sequence>
+						<element name="dodajDokumentResult" nillable="false" type="int" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="pobierzDokument">
+				<complexType>
+					<sequence>
+						<element name="idDokumentu" nillable="false" type="int" />
+						<element name="podmiot" nillable="true" type="string" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="pobierzDokumentResponse">
+				<complexType>
+					<sequence>
+						<element name="pobierzDokumentResult" nillable="true"
+							type="impl:DokumentTyp" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="usunDokument">
+				<complexType>
+					<sequence>
+						<element name="idDokumentu" nillable="false" type="int" />
+						<element name="podmiot" nillable="true" type="string" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="usunDokumentResponse">
+				<complexType>
+					<sequence>
+						<element name="usunDokumentResult" nillable="false" type="boolean" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="zawartoscSkladu">
+				<complexType>
+					<sequence>
+						<element name="sklad" nillable="false" type="impl:SkladTyp" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="zawartoscSkladuResponse">
+				<complexType>
+					<sequence>
+						<element name="zawartoscSkladu" nillable="true"
+							type="impl:ZawartoscSkladuTyp" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<complexType name="DokumentTyp">
+				<sequence>
+					<element name="szczegolyDokumentu" nillable="false"
+						type="impl:SzczegolyDokumentuTyp" />
+					<element name="tresc" nillable="false" type="base64Binary"
+						xmime:expectedContentTypes="text/xml" />
+				</sequence>
+			</complexType>
+
+			<complexType name="SzczegolyDokumentuTyp">
+				<sequence>
+					<element name="id" nillable="true" type="int" />
+					<element name="nazwa" nillable="false" type="string" />
+					<element name="metadane" nillable="true" type="base64Binary"
+						xmime:expectedContentTypes="text/xml" />
+					<element name="idUPO" nillable="true" type="int" />
+					<element name="nadawca" nillable="true" type="impl:NadawcaTyp" />
+					<element name="adresat" nillable="true" type="impl:AdresatTyp" />
+					<element name="dataNadania" nillable="true" type="dateTime" />
+					<element name="dataOdebrania" nillable="true" type="dateTime" />
+					<element name="dataUtworzenia" nillable="true" type="dateTime" />
+					<element name="formularz" nillable="true" type="impl:FormularzTyp" />
+					<element name="folder" nillable="true" type="string" />
+				</sequence>
+			</complexType>
+
+			<complexType name="ZawartoscSkladuTyp">
+				<sequence>
+					<element maxOccurs="unbounded" minOccurs="0"
+						name="SzczegolyDokumentuTyp" nillable="true" type="impl:SzczegolyDokumentuTyp" />
+				</sequence>
+			</complexType>
+
+			<complexType name="FormularzTyp">
+				<sequence>
+					<element name="podmiot" nillable="false" type="string" />
+					<element name="nazwa" nillable="false" type="string" />
+				</sequence>
+			</complexType>
+
+			<complexType name="SkladTyp">
+				<sequence>
+					<element name="nazwa" nillable="false" type="string" />
+					<element name="podmiot" nillable="false" type="string" />
+				</sequence>
+			</complexType>
+
+			<complexType name="AdresatTyp">
+				<sequence>
+					<element name="nazwa" nillable="false" type="string" />
+					<element name="adres" nillable="false" type="string" />
+				</sequence>
+			</complexType>
+
+			<complexType name="NadawcaTyp">
+				<sequence>
+					<element name="nazwa" nillable="false" type="string" />
+					<element name="adres" nillable="false" type="string" />
+				</sequence>
+			</complexType>
+		</schema>
+	</wsdl:types>
+
+	<wsdl:message name="dodajDokumentRequest">
+		<wsdl:part element="impl:dodajDokument" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="usunDokumentRequest">
+		<wsdl:part element="impl:usunDokument" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="usunDokumentResponse">
+		<wsdl:part element="impl:usunDokumentResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="zawartoscSkladuRequest">
+		<wsdl:part element="impl:zawartoscSkladu" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pobierzDokumentRequest">
+		<wsdl:part element="impl:pobierzDokument" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="dodajDokumentResponse">
+		<wsdl:part element="impl:dodajDokumentResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="zawartoscSkladuResponse">
+		<wsdl:part element="impl:zawartoscSkladuResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pobierzDokumentResponse">
+		<wsdl:part element="impl:pobierzDokumentResponse" name="parameters">
+		</wsdl:part>
+	</wsdl:message>
+
+	<wsdl:portType name="ZarzadzanieDokumentami">
+		<wsdl:operation name="dodajDokument">
+			<wsdl:input message="impl:dodajDokumentRequest" name="dodajDokumentRequest">
+			</wsdl:input>
+			<wsdl:output message="impl:dodajDokumentResponse" name="dodajDokumentResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pobierzDokument">
+			<wsdl:input message="impl:pobierzDokumentRequest" name="pobierzDokumentRequest">
+			</wsdl:input>
+			<wsdl:output message="impl:pobierzDokumentResponse" name="pobierzDokumentResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="usunDokument">
+			<wsdl:input message="impl:usunDokumentRequest" name="usunDokumentRequest">
+			</wsdl:input>
+			<wsdl:output message="impl:usunDokumentResponse" name="usunDokumentResponse">
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="zawartoscSkladu">
+			<wsdl:input message="impl:zawartoscSkladuRequest" name="zawartoscSkladuRequest">
+			</wsdl:input>
+			<wsdl:output message="impl:zawartoscSkladuResponse" name="zawartoscSkladuResponse">
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	
+	<wsdl:binding name="ZarzadzanieDokumentamiSoapBinding"
+		type="impl:ZarzadzanieDokumentami">
+		<wsdlsoap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="dodajDokument">
+			<wsdlsoap:operation soapAction="" />
+			<wsdl:input name="dodajDokumentRequest">
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="dodajDokumentResponse">
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pobierzDokument">
+			<wsdlsoap:operation soapAction="" />
+			<wsdl:input name="pobierzDokumentRequest">
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="pobierzDokumentResponse">
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="usunDokument">
+			<wsdlsoap:operation soapAction="" />
+			<wsdl:input name="usunDokumentRequest">
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="usunDokumentResponse">
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="zawartoscSkladu">
+			<wsdlsoap:operation soapAction="" />
+			<wsdl:input name="zawartoscSkladuRequest">
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="zawartoscSkladuResponse">
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	
+	<wsdl:service name="ZarzadzanieDokumentamiService">
+		<wsdl:port binding="impl:ZarzadzanieDokumentamiSoapBinding"
+			name="ZarzadzanieDokumentami">
+			<wsdlsoap:address
+				location="https://epuap.gov.pl/fe_external_ws/services/ZarzadzanieDokumentami" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

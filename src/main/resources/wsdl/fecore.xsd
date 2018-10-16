@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema xmlns:fc="http://wsdl.epuap.gov.pl/fecore/" xmlns="http://www.w3.org/2001/XMLSchema"
+		targetNamespace="http://wsdl.epuap.gov.pl/fecore/">
+
+	<complexType name="WyjatekTyp">
+		<sequence>
+			<element name="kod" type="int" />
+			<element name="komunikat" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="document">
+		<sequence>
+			<element name="id" type="long" />
+			<element name="documentName" type="string" minOccurs="0" />
+			<element name="read" type="boolean" />
+			<element name="sendDate" type="dateTime" minOccurs="0" />
+			<element name="senderOrganizationId" type="string" minOccurs="0" />
+			<element name="senderOrganizationName" type="string"
+				minOccurs="0" />
+			<element name="size" type="long" />
+			<element name="state" type="fc:folderStatusEnum" minOccurs="0" />
+			<element name="mimeType" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="warehouse">
+		<sequence>
+			<element name="id" type="long" />
+			<element name="email" type="string" minOccurs="0" />
+			<element name="name" type="string" minOccurs="0" />
+			<element name="organizationId" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="folderStatusEnum">
+		<restriction base="string">
+			<enumeration value="RECEIVED" />
+			<enumeration value="DRAFT" />
+			<enumeration value="SENT" />
+			<enumeration value="MYFILES" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="listaWarehouse">
+		<sequence>
+			<element name="warehouseElement" type="fc:warehouse"
+				nillable="true" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="listaDocument">
+		<sequence>
+			<element name="documentElement" type="fc:document" nillable="true"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<element name="WyjatekTyp" type="fc:WyjatekTyp" />
+	<element name="tgsid" type="string" />
+	<element name="tgsid2" type="string" />
+	<element name="Warehouse" type="fc:warehouse" />
+	<element name="ListaDocument" type="fc:listaDocument" />
+	<element name="ListaWarehouse" type="fc:listaWarehouse" />
+	<element name="WarehouseId" type="long" />
+	<element name="DocumentId" type="long" />
+	<element name="ArchiveDocumentReturn" type="string" />
+	<element name="ListaDocumentId" type="fc:listaDocumentId" />
+
+	<element name="TgsidWarehouse" type="fc:tgsidWarehouse" />
+	<element name="TgsidDocument" type="fc:tgsidDocument" />
+	<element name="TgsidDocument2" type="fc:tgsidDocument" />
+	<element name="TgsidDocument3" type="fc:tgsidDocument" />
+	<element name="TgsidDocument4" type="fc:tgsidDocumentFile" />
+	<element name="TgsidDocument5" type="fc:tgsidDocumentFile" />
+	<element name="TgsidDocument6" type="fc:tgsidDocumentAndAttachmentFile" />
+	<element name="TgsidApplication" type="fc:tgsidApplication" />
+	<element name="PaczkaPlikow" type="fc:paczkaPlikow" />
+	<element name="TgsidDocumentAndAttachmentFile" type="fc:tgsidDocumentAndAttachmentFile" />
+	<element name="TgsidDocumentFile" type="fc:tgsidDocumentFile" />
+	<element name="VerificationResult" type="fc:verificationResult" />
+	<element name="DocumentPartVerificationResult" type="fc:documentPartVerificationResult" />
+	<element name="CompositeDocumentVerificationResult" type="fc:compositeDocumentVerificationResult" />
+	<element name="UsunDokument" type="boolean" />
+
+	<complexType name="tgsidWarehouse">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="warehouseId" type="long" />
+		</sequence>
+	</complexType>
+
+	<complexType name="tgsidDocument">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="DocumentId" type="long" />
+			<element name="documentDataOnly" type="boolean" default="false" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="verificationResult">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="result" type="base64Binary" />
+		</sequence>
+	</complexType>
+
+	<complexType name="documentPartVerificationResult">
+		<sequence>
+			<element name="masterPart" type="boolean" />
+			<element name="partNumber" type="int" />
+			<element name="partName" type="string" nillable="true"/>
+			<element name="verificationResult" type="fc:verificationResult" />
+		</sequence>
+	</complexType>
+
+	<complexType name="compositeDocumentVerificationResult">
+		<sequence>
+			<element name="verificationResult" type="fc:documentPartVerificationResult" nillable="true"
+					 minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="paczkaPlikow">
+		<sequence>
+			<element name="xml" type="base64Binary" nillable="true"/>
+			<element name="xslt" type="base64Binary" nillable="true"/>
+			<element name="html" type="base64Binary" nillable="true"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="tgsidDocumentFile">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="warehouseId" type="long" />
+			<element name="document" type="fc:document" />
+			<element name="plik" type="base64Binary" nillable="true"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="tgsidDocumentAndAttachmentFile">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="warehouseId" type="long" />
+			<element name="document" type="fc:document" />
+			<element name="plik" type="base64Binary" nillable="true"/>
+			<element name="attachmentName" type="string"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="listaDocumentId">
+		<sequence>
+			<element name="documentList" type="long" nillable="true"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="tgsidApplication">
+		<sequence>
+			<element name="tgsid" type="string" />
+			<element name="applicationId" type="long" />
+		</sequence>
+	</complexType>
+
+</schema>

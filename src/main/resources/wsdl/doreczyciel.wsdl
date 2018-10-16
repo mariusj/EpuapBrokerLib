@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="doreczyciel" targetNamespace="http://ws.epuap.gov.pl/doreczyciel/" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:ob="http://wsdl.epuap.gov.pl/obiekty/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://ws.epuap.gov.pl/doreczyciel/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/08/policy" xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<documentation>Wersja 1.1</documentation>
+  <types>
+    <xsd:schema>
+			<xsd:import namespace="http://wsdl.epuap.gov.pl/obiekty/" schemaLocation="obiektypk.xsd"/>
+		</xsd:schema>
+  </types>
+  <message name="odbierzRequest">
+    <part element="ob:IdentyfikatorPodmiotu" name="podmiot">
+    </part>
+    <part element="ob:CzyProbne" name="czyProbne">
+    </part>
+    <part element="ob:DaneDodatkowe" name="daneDodatkowe">
+    </part>
+    <part element="ob:UPD" name="upd">
+    </part>
+  </message>
+  <message name="doreczRequest">
+    <part element="ob:IdentyfikatorPodmiotu" name="podmiot">
+    </part>
+    <part element="ob:AdresSkrytki" name="adresSkrytki">
+    </part>
+    <part element="ob:AdresOdpowiedzi" name="adresOdpowiedzi">
+    </part>
+    <part element="ob:TerminDoreczenia" name="terminDoreczenia">
+    </part>
+    <part element="ob:CzyProbne" name="czyProbne">
+    </part>
+    <part element="ob:IdentyfikatorDokumentu" name="identyfikatorDokumentu">
+    </part>
+    <part element="ob:IdentyfikatorSprawy" name="identyfikatorSprawy">
+    </part>
+    <part element="ob:DaneDodatkowe" name="daneDodatkowe">
+    </part>
+    <part element="ob:UPD" name="upd">
+    </part>
+    <part element="ob:Dokument" name="dokument">
+    </part>
+  </message>
+  <message name="doreczFaultMsg">
+    <part element="ob:Wyjatek" name="faultStatus">
+    </part>
+  </message>
+  <message name="doreczResponse">
+    <part element="ob:OdpowiedzDoreczyciela" name="odpowiedz">
+    </part>
+  </message>
+  <message name="odbierzFaultMsg">
+    <part element="ob:Wyjatek" name="faultStatus">
+    </part>
+  </message>
+  <message name="odbierzResponse">
+    <part element="ob:StatusDoreczyciela" name="odpowiedz">
+    </part>
+  </message>
+  <portType name="doreczyciel">
+    <operation name="dorecz">
+<documentation>Zlecenie doreczenia dokumentu</documentation>
+      <input message="tns:doreczRequest">
+    </input>
+      <output message="tns:doreczResponse">
+    </output>
+      <fault message="tns:doreczFaultMsg" name="fault">
+    </fault>
+    </operation>
+    <operation name="odbierz">
+<documentation>Odebranie dokumentu na podstawie podpisanego UPD</documentation>
+      <input message="tns:odbierzRequest">
+    </input>
+      <output message="tns:odbierzResponse">
+    </output>
+      <fault message="tns:odbierzFaultMsg" name="fault">
+    </fault>
+    </operation>
+  </portType>
+  <binding name="doreczyciel" type="tns:doreczyciel">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsp:PolicyReference URI="#x509Token"/>
+    <operation name="dorecz">
+      <soap:operation soapAction="http://ws.epuap.gov.pl/doreczyciel/dorecz"/>
+      <input>
+        <soap:header message="tns:doreczRequest" part="podmiot" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="adresSkrytki" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="adresOdpowiedzi" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="terminDoreczenia" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="czyProbne" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="identyfikatorDokumentu" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="identyfikatorSprawy" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="daneDodatkowe" use="literal">
+        </soap:header>
+        <soap:header message="tns:doreczRequest" part="upd" use="literal">
+        </soap:header>
+        <soap:body parts="dokument" use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="fault">
+        <soap:fault name="fault" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="odbierz">
+      <soap:operation soapAction="http://ws.epuap.gov.pl/doreczyciel/odbierz"/>
+      <input>
+        <soap:header message="tns:odbierzRequest" part="podmiot" use="literal">
+        </soap:header>
+        <soap:header message="tns:odbierzRequest" part="czyProbne" use="literal">
+        </soap:header>
+        <soap:header message="tns:odbierzRequest" part="daneDodatkowe" use="literal">
+        </soap:header>
+        <soap:body parts="upd" use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="fault">
+        <soap:fault name="fault" use="literal"/>
+      </fault>
+    </operation>
+  </binding>
+  <service name="pkDoreczycielService">
+    <port binding="tns:doreczyciel" name="doreczyciel">
+      <soap:address location="https://epuap.gov.pl/pk_external_ws/services/doreczyciel"/>
+    </port>
+  </service>
+    <wsp:UsingPolicy Required="true"/>
+    <wsp:Policy wsu:Id="x509Token">
+		<wsp:ExactlyOne>
+			<wsse:SecurityToken>
+				<wsse:TokenType>
+					&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3&quot;
+				</wsse:TokenType>
+			</wsse:SecurityToken>
+		</wsp:ExactlyOne>
+	</wsp:Policy>
+</definitions>
