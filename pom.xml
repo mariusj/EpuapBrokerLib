@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.gov.sejm</groupId>
 	<artifactId>EpuapBrokerLib</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>EpuapBrokerLib</name>
+    <name>EpuapBrokerLib</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,29 +16,23 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0</version>
+			<groupId>javax.xml.ws</groupId>
+			<artifactId>jaxws-api</artifactId>
+			<version>2.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>1.5.6</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.ws.security</groupId>
 			<artifactId>wss4j</artifactId>
 			<version>1.6.18</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>2.6.2</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-ws-security</artifactId>
-			<version>2.6.2</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -72,20 +66,7 @@
 			<version>0.5.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_hotspot</artifactId>
-			<version>0.5.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_servlet</artifactId>
-			<version>0.5.0</version>
-		</dependency>
-
 	</dependencies>
-
 
 	<build>
 		<plugins>
@@ -122,7 +103,7 @@
 								<wsdlFile>esd.wsdl</wsdlFile>
 								<wsdlFile>ZarzadzanieDokumentami.wsdl</wsdlFile>
 							</wsdlFiles>
-							<wsdlLocation>/WEB-INF/classes/wsdl/*</wsdlLocation>
+							<wsdlLocation>/wsdl/*</wsdlLocation>
 						</configuration>
 					</execution>
 				</executions>
@@ -130,4 +111,5 @@
 
 		</plugins>
 	</build>
+
 </project>
