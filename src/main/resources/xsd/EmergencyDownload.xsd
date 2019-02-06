@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xs:elementFormDefault="unqualified"
+  attributeFormDefault="unqualified" >
+
+  <xs:complexType name="DanePodmiotuType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="Identyfikator" />
+      <xs:element type="xs:string" name="TypOsoby" />
+      <xs:element type="xs:string" name="ImieSkrot" />
+      <xs:element type="xs:string" name="NazwiskoNazwa" />
+      <xs:element type="xs:string" name="Nip" />
+      <xs:element type="xs:string" name="Pesel" />
+      <xs:element type="xs:string" name="Regon" />
+      <xs:element type="xs:boolean" name="Zgoda" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DaneNadawcyType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="Uzytkownik" />
+      <xs:element type="xs:string" name="System" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="DokumentType">
+    <xs:sequence>
+      <xs:element type="DanePodmiotuType" name="DanePodmiotu" />
+      <xs:element type="DaneNadawcyType" name="DaneNadawcy" />
+      <xs:element type="xs:string" name="DataNadania" />
+      <xs:element type="xs:string" name="NazwaSkrytki" />
+      <xs:element type="xs:string" name="AdresSkrytki" />
+      <xs:element type="xs:string" name="AdresOdpowiedzi" />
+      <xs:element type="xs:string" name="DaneDodatkowe" />
+      <xs:element type="xs:string" name="NazwaPliku" />
+      <xs:element type="xs:string" name="SciezkaWArchiwum" />
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:element name="Dokumenty">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element type="DokumentType" name="Dokument"
+          maxOccurs="unbounded" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>
