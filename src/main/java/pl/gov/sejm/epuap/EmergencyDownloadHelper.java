@@ -1,17 +1,11 @@
 package pl.gov.sejm.epuap;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -32,6 +26,7 @@ import pl.gov.sejm.epuap.model.EpuapDocument;
 public class EmergencyDownloadHelper {
     
     private SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy'T'HH:mm:ss.SSS");
+    
     private Path baseDir;
 
     /**
@@ -42,43 +37,6 @@ public class EmergencyDownloadHelper {
         this.baseDir = baseDir;
     }
     
-    /**
-     * Extracts a zip file to a temporary directory.
-     * @param file a file to extract
-     * @param tempDir a temp directory
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public void extractZip(File file) throws FileNotFoundException, IOException {
-        byte[] buffer = new byte[1024];
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
-        ZipEntry zipEntry = zis.getNextEntry();
-        while (zipEntry != null) {
-            File newFile = newFile(baseDir, zipEntry);
-            FileOutputStream fos = new FileOutputStream(newFile);
-            int len;
-            while ((len = zis.read(buffer)) > 0) {
-                fos.write(buffer, 0, len);
-            }
-            fos.close();
-            zipEntry = zis.getNextEntry();
-        }
-        zis.closeEntry();
-        zis.close();
-    }
-    
-    public static File newFile(java.nio.file.Path destinationDir, ZipEntry zipEntry) throws IOException {
-        File destFile = new File(destinationDir.toFile(), zipEntry.getName());
-         
-        String destDirPath = destinationDir.toFile().getCanonicalPath();
-        String destFilePath = destFile.getCanonicalPath();
-         
-        if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
-        }
-         
-        return destFile;
-    }
     
     /**
      * Loads a descriptor file.

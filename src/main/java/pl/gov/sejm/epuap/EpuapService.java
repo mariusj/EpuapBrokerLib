@@ -2,6 +2,9 @@ package pl.gov.sejm.epuap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.GregorianCalendar;
 
 import javax.activation.DataHandler;
@@ -297,7 +300,34 @@ public class EpuapService {
                 }
             }
             store.addAttachment(edoc, att);
+            if (config.isExtractZIP() && att.getFileName().toLowerCase().endsWith(".zip")) {
+                extractZIP(store, edoc, att);
+            }
         }
+    }
+
+    /**
+     * Extracts a zip and adds all attachments from it.
+     * @param store a store
+     * @param parent a parent document
+     * @param zipAtt a zipped file
+     */
+    private void extractZIP(Store store, EpuapDocument parent, EpuapAttachment zipAtt) {
+        try {
+            java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
+            Utils.extractZip(tempDir, zipAtt.getStream());
+            DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir);
+            for (Path path : dir) {
+                byte[] bytes = Files.readAllBytes(path);
+                EpuapAttachment unzipped = new EpuapAttachment(
+                        path.getFileName().toString(), 
+                        null, null, bytes, null);
+                store.addAttachment(parent, unzipped);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
     /**

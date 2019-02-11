@@ -44,5 +44,11 @@ public interface EpuapConfig {
      * @return a list of inboxes
      */
     List<String> getInboxes();
+    
+    /**
+     * A flag indicating that downloaded .zip files should be extracted.
+     * @return true if .zip files should be extracted
+     */
+    boolean isExtractZIP();
 
 }
