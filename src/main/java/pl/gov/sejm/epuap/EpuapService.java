@@ -1,7 +1,10 @@
 package pl.gov.sejm.epuap;
 
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,10 +14,22 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
@@ -90,6 +105,12 @@ public class EpuapService {
     /** The Skrytka service */
     private Skrytka skrytka;
 
+    private DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+    
+    private DocumentBuilder docBuilder;
+    
+    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    
 
     /**
      * Ctor.
@@ -277,10 +298,72 @@ public class EpuapService {
             return null;
         }
         String docId = store.addDocument(edoc);
-        confirmReceive(inbox, edoc.getSHA());
+        confirmReceive(store, inbox, edoc.getSHA());
         saveAttachments(store, edoc);
         store.changeDocStatus(docId, DocStatus.ATTACHMENTS_DOWNLOADED);
+        String html = toHTML(store, edoc);
+        store.saveHTML(docId, html);
         return edoc;
+    }
+
+    /**
+     * Converts a document in the XML format to the HTML format.
+     * using associated XSL.
+     * @param store a store
+     * @param doc a document to transform
+     * @return a transformed document
+     */
+    public String toHTML(Store store, EpuapDocument doc) {
+        if (docBuilder == null) {
+            try {
+                docBuilder = docBuilderFactory.newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+                LOG.error(e.getMessage());
+                return null;
+            }
+        } else {
+            docBuilder.reset();
+        }
+        StringReader r = new StringReader(doc.getDataXML());
+        InputSource source = new InputSource(r);
+        try {
+            org.w3c.dom.Document xdoc = docBuilder.parse(source);
+            DOMSource xmlSource = new DOMSource(xdoc);
+            Source stylesheet = transformerFactory.getAssociatedStylesheet(
+                    xmlSource, null, null, null);
+            String ssId = stylesheet.getSystemId();
+            String xsl = store.loadStyleSheet(ssId);
+            if (xsl == null) {
+                saveStylesheet(store, ssId, stylesheet);
+            } else {                
+                stylesheet = new StreamSource(new StringReader(xsl));
+            }
+            Transformer transformer = transformerFactory.newTransformer(stylesheet);
+            StringWriter writer = new StringWriter();
+            transformer.transform(xmlSource, new StreamResult(writer));
+            return writer.toString();            
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Saves a stylesheet in the store.
+     * @param store a store where stylesheet will be saved
+     * @param ssId an id of the stylesheet
+     * @param stylesheet a stylsheet
+     * @throws TransformerConfigurationException
+     * @throws TransformerException
+     */
+    private void saveStylesheet(Store store, String ssId, Source stylesheet)
+            throws TransformerConfigurationException, TransformerException {
+        Transformer transformer = transformerFactory.newTransformer();
+        StringWriter writer = new StringWriter();
+        transformer.transform(stylesheet, new StreamResult(writer));
+        store.storeStylesheet(ssId, writer.toString());
     }
 
     /**
@@ -334,10 +417,11 @@ public class EpuapService {
      * Confirms receiving of a document.
      * After it's confirmed it's removed from the waiting 
      * documents in the inbox.
+     * @param store a store
      * @param inbox an inbox name
      * @param sha a SHA-1 of document to confirm
      */
-    public void confirmReceive(final String inbox, final String sha) {
+    public void confirmReceive(Store store, final String inbox, final String sha) {
         LOG.info("confirm receive in {} for {}", inbox, sha);
         ZapytaniePullPotwierdzTyp q = new ZapytaniePullPotwierdzTyp();
         q.setNazwaSkrytki(inbox);
@@ -346,8 +430,9 @@ public class EpuapService {
         q.setSkrot(sha);
         try {
             OdpowiedzPullPotwierdzTyp resp = pull.potwierdzOdebranie(q);
-            System.out.println(resp.getStatus().getKod());
-            System.out.println(resp.getStatus().getKomunikat());
+            store.confirmed(inbox, sha, 
+                    resp.getStatus().getKod(), 
+                    resp.getStatus().getKomunikat());
         } catch (PullFaultMsg e) {
             e.printStackTrace();
             LOG.error(e.toString());

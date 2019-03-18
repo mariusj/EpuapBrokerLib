@@ -76,4 +76,41 @@ public interface Store {
      */
     void logError(Throwable e);
 
+    /**
+     * Called after document has been confirmed as received.
+     * @param inbox a name of the inbox 
+     * @param sha a sha of the confirmed document
+     * @param code a status code
+     * @param message a status message
+     */
+    void confirmed(String inbox, String sha, int code, String message);
+
+    /**
+     * Loads a XSL stylesheet with a given id.
+     * XSL files can be cached in Store so they are read locally instead of
+     * from CRD. The {@link #storeStylesheet(String, String)} saves a 
+     * stylesheet in the store.
+     * If the stylesheet with a given name is not found in the store then 
+     * it returns null.  
+     * @param id an id of the stylesheet
+     * @return an XSL or null if XSL is not found
+     */
+    String loadStyleSheet(String id);
+
+    /**
+     * Saves a stylesheet in the store. Stylesheets can be cached in the store
+     * so they can be read from it later. 
+     * @param id an id of the stylesheet
+     * @param xsl a stylesheet to save
+     */
+    void storeStylesheet(String id, String xsl);
+
+    /**
+     * Saves a HTML representation of the document.
+     * The HTML is produced by transforming XML document using associated XSL.
+     * @param docId a document id
+     * @param html a generated HTML
+     */
+    void saveHTML(String docId, String html);
+
 }
