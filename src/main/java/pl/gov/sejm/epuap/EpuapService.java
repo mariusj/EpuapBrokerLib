@@ -316,6 +316,7 @@ public class EpuapService {
      * @return a transformed document
      */
     public String toHTML(Store store, EpuapDocument doc) {
+        LOG.info("Generating HMTL for {}", doc.getDocID());
         if (docBuilder == null) {
             try {
                 docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -356,12 +357,13 @@ public class EpuapService {
      * Saves a stylesheet in the store.
      * @param store a store where stylesheet will be saved
      * @param ssId an id of the stylesheet
-     * @param stylesheet a stylsheet
+     * @param stylesheet a stylesheet
      * @throws TransformerConfigurationException
      * @throws TransformerException
      */
     private void saveStylesheet(Store store, String ssId, Source stylesheet)
             throws TransformerConfigurationException, TransformerException {
+        LOG.info("Saving XSL {}", ssId);
         Transformer transformer = transformerFactory.newTransformer();
         StringWriter writer = new StringWriter();
         transformer.transform(stylesheet, new StreamResult(writer));
