@@ -302,7 +302,9 @@ public class EpuapService {
         saveAttachments(store, edoc);
         store.changeDocStatus(docId, DocStatus.ATTACHMENTS_DOWNLOADED);
         String html = toHTML(store, edoc);
-        store.saveHTML(docId, html);
+        if (html != null) {
+            store.saveHTML(docId, html);
+        }
         return edoc;
     }
 
