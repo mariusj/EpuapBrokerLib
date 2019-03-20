@@ -17,17 +17,17 @@ public interface Store {
      * Adds a new document to a store.
      *
      * @param doc data to store on a document
-     * @return an id of a new document
+     * @return an id of a new document (the store internal id)
      */
     String addDocument(EpuapDocument doc);
 
     /**
      * Changes status of a document.
      *
-     * @param docId  an id of a document
+     * @param doc a document to change status in
      * @param status a new status of a document
      */
-    void changeDocStatus(String docId, DocStatus status);
+    void changeDocStatus(EpuapDocument doc, DocStatus status);
 
     /**
      * Adds a new attachment to a document.
@@ -39,12 +39,12 @@ public interface Store {
     String addAttachment(EpuapDocument parent, EpuapAttachment attachment);
 
     /**
-     * Gets a document from a store.
+     * Gets a document from a store by using store internal id.
      *
-     * @param id an id of a document
+     * @param storeId an id of a document (the internal id used by the store)
      * @return a document
      */
-    EpuapDocument getDocument(String id);
+    EpuapDocument getDocument(String storeId);
 
     /**
      * Saves a confirmation that a document was delivered.
@@ -57,10 +57,10 @@ public interface Store {
     /**
      * Gets an attachment from a store.
      *
-     * @param id an id of an attachment
+     * @param storeId an id of an attachment (the internal id used by the store)
      * @return an attachment with given id
      */
-    EpuapAttachment getAttachment(String id);
+    EpuapAttachment getAttachment(String storeId);
 
     /**
      * Called after attachment has been uploaded.
@@ -108,9 +108,9 @@ public interface Store {
     /**
      * Saves a HTML representation of the document.
      * The HTML is produced by transforming XML document using associated XSL.
-     * @param docId a document id
+     * @param doc a document
      * @param html a generated HTML
      */
-    void saveHTML(String docId, String html);
+    void saveHTML(EpuapDocument doc, String html);
 
 }

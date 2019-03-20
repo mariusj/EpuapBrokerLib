@@ -8,15 +8,22 @@ import pl.gov.sejm.epuap.model.EpuapUPP;
 /**
  * A class that binds together {@link EpuapService} and {@link Store} to
  * allow documents to be read from ePUAP and stored in store.
+ * 
  * @author Mariusz Jakubowski
  *
  */
 public class EpuapAPIHelper {
     
     private Store store;
+    
     private EpuapService service;
 
-    public EpuapAPIHelper(EpuapConfig config, Store store) {
+    /**
+     * Constructs a new API Helper.
+     * @param config a configuration object
+     * @param store a store to read/save documents
+     */
+    public EpuapAPIHelper(final EpuapConfig config, final Store store) {
         this.store = store;
         service = new EpuapService(config);
     }
@@ -41,7 +48,7 @@ public class EpuapAPIHelper {
         EpuapDocument doc = store.getDocument(docId);
         EpuapUPP upp = service.send(doc);
         store.saveUPP(docId, upp);
-        store.changeDocStatus(docId, DocStatus.UPLOADED);
+        store.changeDocStatus(doc, DocStatus.UPLOADED);
         return upp;
     }
     

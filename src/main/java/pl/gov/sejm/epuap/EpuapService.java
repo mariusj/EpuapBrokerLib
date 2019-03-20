@@ -297,13 +297,12 @@ public class EpuapService {
         if (edoc == null) {
             return null;
         }
-        String docId = store.addDocument(edoc);
         confirmReceive(store, inbox, edoc.getSHA());
         saveAttachments(store, edoc);
-        store.changeDocStatus(docId, DocStatus.ATTACHMENTS_DOWNLOADED);
+        store.changeDocStatus(edoc, DocStatus.ATTACHMENTS_DOWNLOADED);
         String html = toHTML(store, edoc);
         if (html != null) {
-            store.saveHTML(docId, html);
+            store.saveHTML(edoc, html);
         }
         return edoc;
     }
