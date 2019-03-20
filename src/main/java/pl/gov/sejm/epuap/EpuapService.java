@@ -30,6 +30,7 @@ import javax.xml.ws.BindingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
@@ -328,11 +329,8 @@ public class EpuapService {
         } else {
             docBuilder.reset();
         }
-        StringReader r = new StringReader(doc.getDataXML());
-        InputSource source = new InputSource(r);
+        DOMSource xmlSource = toXMLSource(doc.getDataXML());
         try {
-            org.w3c.dom.Document xdoc = docBuilder.parse(source);
-            DOMSource xmlSource = new DOMSource(xdoc);
             Source stylesheet = transformerFactory.getAssociatedStylesheet(
                     xmlSource, null, null, null);
             String ssId = stylesheet.getSystemId();
@@ -347,6 +345,24 @@ public class EpuapService {
             transformer.transform(xmlSource, new StreamResult(writer));
             return writer.toString();            
         } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Converts XML string to a {@link DOMSource}.
+     * @param xml contents of the XML file
+     * @return a {@link DOMSource}
+     */
+    private DOMSource toXMLSource(String xml) {
+        StringReader r = new StringReader(xml);
+        InputSource source = new InputSource(r);
+        try {
+            org.w3c.dom.Document xdoc = docBuilder.parse(source);
+            return new DOMSource(xdoc);
+        } catch (Exception e) {           
             e.printStackTrace();
             LOG.error(e.getMessage());
             return null;
