@@ -330,16 +330,8 @@ public class EpuapService {
             docBuilder.reset();
         }
         DOMSource xmlSource = toXMLSource(doc.getDataXML());
+        Source stylesheet = getXSLFor(xmlSource, store);
         try {
-            Source stylesheet = transformerFactory.getAssociatedStylesheet(
-                    xmlSource, null, null, null);
-            String ssId = stylesheet.getSystemId();
-            String xsl = store.loadStyleSheet(ssId);
-            if (xsl == null) {
-                saveStylesheet(store, ssId, stylesheet);
-            } else {                
-                stylesheet = new StreamSource(new StringReader(xsl));
-            }
             Transformer transformer = transformerFactory.newTransformer(stylesheet);
             StringWriter writer = new StringWriter();
             transformer.transform(xmlSource, new StreamResult(writer));
@@ -362,6 +354,30 @@ public class EpuapService {
         try {
             org.w3c.dom.Document xdoc = docBuilder.parse(source);
             return new DOMSource(xdoc);
+        } catch (Exception e) {           
+            e.printStackTrace();
+            LOG.error(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Extracts a stylesheet for a given XML.
+     * @param xmlSource a XML with associated XSL
+     * @return a stylesheet
+     */
+    private Source getXSLFor(DOMSource xmlSource, Store store) {
+        try {
+            Source stylesheet = transformerFactory.getAssociatedStylesheet(
+                    xmlSource, null, null, null);
+            String ssId = stylesheet.getSystemId();
+            String xsl = store.loadStyleSheet(ssId);
+            if (xsl == null) {
+                saveStylesheet(store, ssId, stylesheet);
+            } else {                
+                stylesheet = new StreamSource(new StringReader(xsl));
+            }
+            return stylesheet;
         } catch (Exception e) {           
             e.printStackTrace();
             LOG.error(e.getMessage());
