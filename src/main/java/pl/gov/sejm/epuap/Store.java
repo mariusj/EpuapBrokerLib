@@ -28,6 +28,15 @@ public interface Store {
      * @return a document
      */
     EpuapDocument getDocumentByStoreId(String storeId);
+    
+    /**
+     * Gets a document from a store by using ePUAP document id.
+     *
+     * @param epuapId an id of a document from the ePUAP system
+     * @return a document
+     */
+    EpuapDocument getDocumentByEpuapId(String epuapId);
+    
 
     /**
      * Changes status of a document.
