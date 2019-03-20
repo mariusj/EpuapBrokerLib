@@ -22,12 +22,37 @@ public interface Store {
     String addDocument(EpuapDocument doc);
 
     /**
+     * Gets a document from a store by using store internal id.
+     *
+     * @param storeId an id of a document (the internal id used by the store)
+     * @return a document
+     */
+    EpuapDocument getDocument(String storeId);
+
+    /**
      * Changes status of a document.
      *
      * @param doc a document to change status in
      * @param status a new status of a document
      */
     void changeDocStatus(EpuapDocument doc, DocStatus status);
+
+    /**
+     * Saves a confirmation that a document was delivered.
+     *
+     * @param parent a parent document
+     * @param upp    a UPP info
+     */
+    void saveUPP(String parent, EpuapUPP upp);
+
+    /**
+     * Called after document has been confirmed as received.
+     * @param inbox a name of the inbox 
+     * @param sha a sha of the confirmed document
+     * @param code a status code
+     * @param message a status message
+     */
+    void confirmed(String inbox, String sha, int code, String message);
 
     /**
      * Adds a new attachment to a document.
@@ -37,22 +62,6 @@ public interface Store {
      * @return an id of the attachment
      */
     String addAttachment(EpuapDocument parent, EpuapAttachment attachment);
-
-    /**
-     * Gets a document from a store by using store internal id.
-     *
-     * @param storeId an id of a document (the internal id used by the store)
-     * @return a document
-     */
-    EpuapDocument getDocument(String storeId);
-
-    /**
-     * Saves a confirmation that a document was delivered.
-     *
-     * @param parent a parent document
-     * @param upp    a UPP info
-     */
-    void saveUPP(String parent, EpuapUPP upp);
 
     /**
      * Gets an attachment from a store.
@@ -68,22 +77,6 @@ public interface Store {
      * @param attachment an uploaded attachment
      */
     void attachmentUploaded(EpuapAttachment attachment);
-
-    /**
-     * Logs an error.
-     *
-     * @param e an exception to log
-     */
-    void logError(Throwable e);
-
-    /**
-     * Called after document has been confirmed as received.
-     * @param inbox a name of the inbox 
-     * @param sha a sha of the confirmed document
-     * @param code a status code
-     * @param message a status message
-     */
-    void confirmed(String inbox, String sha, int code, String message);
 
     /**
      * Loads a XSL stylesheet with a given id.
@@ -112,5 +105,12 @@ public interface Store {
      * @param html a generated HTML
      */
     void saveHTML(EpuapDocument doc, String html);
+
+    /**
+     * Logs an error.
+     *
+     * @param e an exception to log
+     */
+    void logError(Throwable e);
 
 }
