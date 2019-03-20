@@ -27,7 +27,7 @@ public interface Store {
      * @param storeId an id of a document (the internal id used by the store)
      * @return a document
      */
-    EpuapDocument getDocument(String storeId);
+    EpuapDocument getDocumentByStoreId(String storeId);
 
     /**
      * Changes status of a document.

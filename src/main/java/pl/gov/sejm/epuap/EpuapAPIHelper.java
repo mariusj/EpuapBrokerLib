@@ -45,7 +45,7 @@ public class EpuapAPIHelper {
      * @return a confirmation of sending a document
      */
     public EpuapUPP sendDocument(final String docId) {
-        EpuapDocument doc = store.getDocument(docId);
+        EpuapDocument doc = store.getDocumentByStoreId(docId);
         EpuapUPP upp = service.send(doc);
         store.saveUPP(docId, upp);
         store.changeDocStatus(doc, DocStatus.UPLOADED);
