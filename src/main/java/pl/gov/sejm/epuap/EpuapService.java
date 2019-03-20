@@ -297,6 +297,7 @@ public class EpuapService {
         if (edoc == null) {
             return null;
         }
+        store.addDocument(edoc);
         confirmReceive(store, inbox, edoc.getSHA());
         saveAttachments(store, edoc);
         store.changeDocStatus(edoc, DocStatus.ATTACHMENTS_DOWNLOADED);
