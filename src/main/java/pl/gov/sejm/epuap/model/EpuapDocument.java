@@ -144,7 +144,6 @@ public class EpuapDocument {
         this.data = data;
         this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
 
-        this.attachments = new ArrayList<>();
         if ("application/xml".equals(fileType) || "XML".equals(fileType)) {
             try {
                 this.dataXML = new String(this.data, "UTF-8");
@@ -154,6 +153,8 @@ public class EpuapDocument {
         } else {
             this.dataXML = null;
         }
+
+        this.attachments = new ArrayList<>();
         this.extractAttachments();
     }
 
