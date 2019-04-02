@@ -300,7 +300,6 @@ public class EpuapService {
         store.addDocument(edoc);
         confirmReceive(store, inbox, edoc.getSHA());
         saveAttachments(store, edoc);
-        store.changeDocStatus(edoc, DocStatus.ATTACHMENTS_DOWNLOADED);
         String html = toHTML(store, edoc);
         if (html != null) {
             store.saveHTML(edoc, html);
@@ -422,6 +421,7 @@ public class EpuapService {
                 extractZIP(store, edoc, att);
             }
         }
+        store.changeDocStatus(edoc, DocStatus.ATTACHMENTS_DOWNLOADED);
     }
 
     /**
