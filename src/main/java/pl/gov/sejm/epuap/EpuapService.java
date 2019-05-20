@@ -68,7 +68,8 @@ import pl.gov.sejm.epuap.model.EpuapUPP;
  */
 public class EpuapService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EpuapService.class);
+    private static final Logger LOG = 
+            LoggerFactory.getLogger(EpuapService.class);
 
     private static final Counter documents_received = Counter.build()
              .name("documents_received")
@@ -105,11 +106,13 @@ public class EpuapService {
     /** The Skrytka service */
     private Skrytka skrytka;
 
-    private DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+    private DocumentBuilderFactory docBuilderFactory = 
+            DocumentBuilderFactory.newInstance();
     
     private DocumentBuilder docBuilder;
     
-    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private TransformerFactory transformerFactory = 
+            TransformerFactory.newInstance();
     
 
     /**
@@ -165,31 +168,27 @@ public class EpuapService {
      * @param inbox a name of an inbox
      * @return a number of documents in this inbox
      */
-    public int getNumDocuments(final String inbox) {
+    public int getNumDocuments(final String inbox) throws PullFaultMsg {
         LOG.info("getNumDocuments");
         ZapytaniePullOczekujaceTyp q = new ZapytaniePullOczekujaceTyp();
         q.setNazwaSkrytki(inbox);
         q.setPodmiot(config.getOrg());
         q.setAdresSkrytki(getInboxAddr(inbox));
 
-        try {
-            OdpowiedzPullOczekujaceTyp dokumenty = pull.oczekujaceDokumenty(q);
-            LOG.info("num of documents in {}={}", 
-                    inbox, dokumenty.getOczekujace());
-            return dokumenty.getOczekujace();
-        } catch (PullFaultMsg e) {
-            LOG.error(e.toString());
-            e.printStackTrace();
-            return 0;
-        }
+        OdpowiedzPullOczekujaceTyp dokumenty = pull.oczekujaceDokumenty(q);
+        LOG.info("num of documents in {}={}", 
+                inbox, dokumenty.getOczekujace());
+        return dokumenty.getOczekujace();
     }
 
     /**
      * Downloads documents from inbox and saves them in a store.
      * @param store a store
      * @param inbox a name of an inbox
+     * @throws PullFaultMsg 
      */
-    public void getDocuments(final Store store, final String inbox) {
+    public void getDocuments(final Store store, final String inbox) 
+            throws PullFaultMsg {
         LOG.info("importing documents from {}", inbox);
         int docs = getNumDocuments(inbox);
         if (docs == 0) {
@@ -212,78 +211,68 @@ public class EpuapService {
      * Imports one document from a given inbox.
      * @param inbox a name of an inbox to import document from.
      * @return a imported document saved in a store
+     * @throws PullFaultMsg 
      */
-    public EpuapDocument importOneDoc(final String inbox) {
+    public EpuapDocument importOneDoc(final String inbox) throws PullFaultMsg {
         LOG.info("importing document from {}", inbox);
         ZapytaniePullPobierzTyp q = new ZapytaniePullPobierzTyp();
         q.setNazwaSkrytki(inbox);
         q.setPodmiot(config.getOrg());
         q.setAdresSkrytki(getInboxAddr(inbox));
 
-        try {
-            OdpowiedzPullPobierzTyp meta = pull.pobierzNastepny(q);
-            if (meta == null) {
-                return null;
-            }
-
-            if (meta.getStatus().getKod() != STATUS_OK) {
-                if (meta.getStatus().getKod() == 0) {
-                    LOG.warn("no documents to import from {}", inbox);
-                    return null;
-                }
-                LOG.error("error downloading documents from {}, code={}, {}",
-                        inbox,
-                        meta.getStatus().getKod(),
-                        meta.getStatus().getKomunikat());
-                return null;
-            }
-
-            String adresOdpowiedzi = meta.getAdresOdpowiedzi();
-            String adresSkrytki = meta.getAdresSkrytki();
-            byte[] daneDodatkowe = meta.getDaneDodatkowe();
-
-            DaneNadawcyTyp daneNadawcy = meta.getDaneNadawcy();
-            String system = daneNadawcy.getSystem();
-            String uzytkownik = daneNadawcy.getUzytkownik();
-            String sender = (system != null && !system.isEmpty()) ? 
-                    system : uzytkownik;
-
-            DanePodmiotuTyp danePodmiotu = meta.getDanePodmiotu();
-
-            XMLGregorianCalendar dataNadania = meta.getDataNadania();
-            GregorianCalendar sendDate = dataNadania.toGregorianCalendar();
-
-            DokumentTyp dok = meta.getDokument();
-            String nazwaPliku = dok.getNazwaPliku();
-            String typPliku = dok.getTypPliku();
-            byte[] bytes = dok.getZawartosc();
-
-            EpuapDocument documentInfo = new EpuapDocument(sender,
-                    danePodmiotu,
-                    adresOdpowiedzi,
-                    adresSkrytki,
-                    sendDate,
-                    daneDodatkowe,
-                    nazwaPliku,
-                    typPliku,
-                    bytes);
-            LOG.info("imported document from={}, id={}",
-                    sender, documentInfo.getDocID());
-
-            documents_received.inc();
-            documents_received_time.setToCurrentTime();
-
-            return documentInfo;
-        } catch (PullFaultMsg e1) {
-            e1.printStackTrace();
-            LOG.error(e1.toString());
-            LOG.error(e1.getFaultInfo().getKomunikat());
-            return null;
-        } catch (Throwable e2) {
-            e2.printStackTrace();
-            LOG.error(e2.toString());
+        OdpowiedzPullPobierzTyp meta = pull.pobierzNastepny(q);
+        if (meta == null) {
             return null;
         }
+
+        if (meta.getStatus().getKod() != STATUS_OK) {
+            if (meta.getStatus().getKod() == 0) {
+                LOG.warn("no documents to import from {}", inbox);
+                return null;
+            }
+            LOG.error("error downloading documents from {}, code={}, {}",
+                    inbox,
+                    meta.getStatus().getKod(),
+                    meta.getStatus().getKomunikat());
+            return null;
+        }
+
+        String adresOdpowiedzi = meta.getAdresOdpowiedzi();
+        String adresSkrytki = meta.getAdresSkrytki();
+        byte[] daneDodatkowe = meta.getDaneDodatkowe();
+
+        DaneNadawcyTyp daneNadawcy = meta.getDaneNadawcy();
+        String system = daneNadawcy.getSystem();
+        String uzytkownik = daneNadawcy.getUzytkownik();
+        String sender = (system != null && !system.isEmpty()) ? 
+                system : uzytkownik;
+
+        DanePodmiotuTyp danePodmiotu = meta.getDanePodmiotu();
+
+        XMLGregorianCalendar dataNadania = meta.getDataNadania();
+        GregorianCalendar sendDate = dataNadania.toGregorianCalendar();
+
+        DokumentTyp dok = meta.getDokument();
+        String nazwaPliku = dok.getNazwaPliku();
+        String typPliku = dok.getTypPliku();
+        byte[] bytes = dok.getZawartosc();
+
+        EpuapDocument documentInfo = new EpuapDocument(sender,
+                danePodmiotu,
+                adresOdpowiedzi,
+                adresSkrytki,
+                sendDate,
+                daneDodatkowe,
+                nazwaPliku,
+                typPliku,
+                bytes);
+        LOG.info("imported document from={}, id={}",
+                sender, documentInfo.getDocID());
+
+        documents_received.inc();
+        documents_received_time.setToCurrentTime();
+
+        return documentInfo;
     }
 
     /**
@@ -291,8 +280,10 @@ public class EpuapService {
      * @param store a store
      * @param inbox a name of inbox
      * @return a saved document
+     * @throws PullFaultMsg 
      */
-    public EpuapDocument importAndSave(final Store store, final String inbox) {
+    public EpuapDocument importAndSave(final Store store, final String inbox) 
+            throws PullFaultMsg {
         EpuapDocument edoc = importOneDoc(inbox);
         if (edoc == null) {
             return null;
@@ -314,8 +305,8 @@ public class EpuapService {
      * @param doc a document to transform
      * @return a transformed document
      */
-    public String toHTML(Store store, EpuapDocument doc) {
-        LOG.info("Generating HMTL for {}", doc.getDocID());
+    public String toHTML(final Store store, final EpuapDocument doc) {
+        LOG.info("Generating HTML for {}", doc.getDocID());
         if (docBuilder == null) {
             try {
                 docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -330,7 +321,8 @@ public class EpuapService {
         DOMSource xmlSource = toXMLSource(doc.getDataXML());
         Source stylesheet = getXSLFor(xmlSource, store);
         try {
-            Transformer transformer = transformerFactory.newTransformer(stylesheet);
+            Transformer transformer = 
+                    transformerFactory.newTransformer(stylesheet);
             StringWriter writer = new StringWriter();
             transformer.transform(xmlSource, new StreamResult(writer));
             return writer.toString();            
@@ -346,7 +338,7 @@ public class EpuapService {
      * @param xml contents of the XML file
      * @return a {@link DOMSource}
      */
-    private DOMSource toXMLSource(String xml) {
+    private DOMSource toXMLSource(final String xml) {
         StringReader r = new StringReader(xml);
         InputSource source = new InputSource(r);
         try {
@@ -364,7 +356,7 @@ public class EpuapService {
      * @param xmlSource a XML with associated XSL
      * @return a stylesheet
      */
-    private Source getXSLFor(DOMSource xmlSource, Store store) {
+    private Source getXSLFor(final DOMSource xmlSource, final Store store) {
         try {
             Source stylesheet = transformerFactory.getAssociatedStylesheet(
                     xmlSource, null, null, null);
@@ -391,7 +383,10 @@ public class EpuapService {
      * @throws TransformerConfigurationException
      * @throws TransformerException
      */
-    private void saveStylesheet(Store store, String ssId, Source stylesheet)
+    private void saveStylesheet(
+            final Store store, 
+            final String ssId, 
+            final Source stylesheet)
             throws TransformerConfigurationException, TransformerException {
         LOG.info("Saving XSL {}", ssId);
         Transformer transformer = transformerFactory.newTransformer();
@@ -411,13 +406,20 @@ public class EpuapService {
                 // for documents that are not embedded in XML but are
                 // stored in the ePUAP big file storage
                 // we have to download them
-                EpuapAttachment att2 = downloadAttachment(att.getURI());
-                if (att2 != null) {
-                    att.setStream(att2.getStream());
+                EpuapAttachment att2;
+                try {
+                    att2 = downloadAttachment(att.getURI());
+                    if (att2 != null) {
+                        att.setStream(att2.getStream());
+                    }
+                } catch (OdbierzFaultMsg e) {
+                    e.printStackTrace();
+                    LOG.error(e.getFaultInfo().getKomunikat());
                 }
             }
             store.addAttachment(edoc, att);
-            if (config.isExtractZIP() && att.getFileName().toLowerCase().endsWith(".zip")) {
+            if (config.isExtractZIP() 
+                    && att.getFileName().toLowerCase().endsWith(".zip")) {
                 extractZIP(store, edoc, att);
             }
         }
@@ -430,7 +432,10 @@ public class EpuapService {
      * @param parent a parent document
      * @param zipAtt a zipped file
      */
-    private void extractZIP(Store store, EpuapDocument parent, EpuapAttachment zipAtt) {
+    private void extractZIP(
+            final Store store, 
+            final EpuapDocument parent, 
+            final EpuapAttachment zipAtt) {
         try {
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
             Utils.extractZip(tempDir, zipAtt.getStream());
@@ -444,6 +449,7 @@ public class EpuapService {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            LOG.error(e.getMessage());
         }
         
     }
@@ -455,31 +461,32 @@ public class EpuapService {
      * @param store a store
      * @param inbox an inbox name
      * @param sha a SHA-1 of document to confirm
+     * @throws PullFaultMsg 
      */
-    public void confirmReceive(Store store, final String inbox, final String sha) {
+    public void confirmReceive(
+            final Store store, 
+            final String inbox, 
+            final String sha) throws PullFaultMsg {
         LOG.info("confirm receive in {} for {}", inbox, sha);
         ZapytaniePullPotwierdzTyp q = new ZapytaniePullPotwierdzTyp();
         q.setNazwaSkrytki(inbox);
         q.setPodmiot(config.getOrg());
         q.setAdresSkrytki(getInboxAddr(inbox));
         q.setSkrot(sha);
-        try {
-            OdpowiedzPullPotwierdzTyp resp = pull.potwierdzOdebranie(q);
-            store.confirmed(inbox, sha, 
-                    resp.getStatus().getKod(), 
-                    resp.getStatus().getKomunikat());
-        } catch (PullFaultMsg e) {
-            e.printStackTrace();
-            LOG.error(e.toString());
-        }
+        OdpowiedzPullPotwierdzTyp resp = pull.potwierdzOdebranie(q);
+        store.confirmed(inbox, sha, 
+                resp.getStatus().getKod(), 
+                resp.getStatus().getKomunikat());
     }
 
     /**
      * Downloads an attachment with given id.
      * @param docId an id of an attachment
      * @return a InputStream with attachment data
+     * @throws OdbierzFaultMsg 
      */
-    public EpuapAttachment downloadAttachment(String docId) {
+    public EpuapAttachment downloadAttachment(String docId) 
+            throws OdbierzFaultMsg {
         LOG.info("downloading attachment {}", docId);
         DownloadFileParam download = new DownloadFileParam();
         if (docId.startsWith("http")) {
@@ -488,30 +495,24 @@ public class EpuapService {
         }
         download.setFileId(docId);
         download.setSubject(config.getOrg());
+        DownloadFile downloaded = repo.downloadFile(download);
+        LOG.info("download complete {} {}",
+                downloaded.getFilename(), downloaded.getMimeType());
+        EpuapAttachment attachment = new EpuapAttachment(
+                downloaded.getFilename(),
+                downloaded.getEncoding(),
+                downloaded.getMimeType(),
+                docId,
+                null);
+        DataHandler file = downloaded.getFile();
         try {
-            DownloadFile downloaded = repo.downloadFile(download);
-            LOG.info("download complete {} {}",
-                    downloaded.getFilename(), downloaded.getMimeType());
-            EpuapAttachment attachment = new EpuapAttachment(
-                    downloaded.getFilename(),
-                    downloaded.getEncoding(),
-                    downloaded.getMimeType(),
-                    docId,
-                    null);
-            DataHandler file = downloaded.getFile();
-            try {
-                InputStream stream = file.getInputStream();
-                attachment.setStream(stream);
-            } catch (IOException e) {
-                e.printStackTrace();
-                LOG.error(e.toString());
-            }
-            return attachment;
-        } catch (OdbierzFaultMsg e) {
+            InputStream stream = file.getInputStream();
+            attachment.setStream(stream);
+        } catch (IOException e) {
             e.printStackTrace();
             LOG.error(e.toString());
         }
-        return null;
+        return attachment;
     }
 
     /**
@@ -521,56 +522,52 @@ public class EpuapService {
      * @param fileName a name of a file to send
      * @param data a document to send
      * @return a confirmation that a document was sent
+     * @throws NadajFaultMsg 
      */
     public EpuapUPP send(final String sendTo,
             final String replyTo,
             final String fileName,
-            final byte[] data) {
+            final byte[] data) throws NadajFaultMsg {
         LOG.info("sending {} to {} from {}", fileName, sendTo, replyTo);
         String podmiot = config.getOrg();
         DokumentTyp dokument = new DokumentTyp();
         dokument.setNazwaPliku(fileName);
         dokument.setZawartosc(data);
-        try {
-            OdpowiedzSkrytkiTyp resp = skrytka.nadaj(podmiot,
-                    sendTo,
-                    replyTo,
-                    false,
-                    null,
-                    dokument);
-            LOG.info("document sent id: {}, upp: {}", 
-                    resp.getIdentyfikatorDokumentu(), 
-                    resp.getIdentyfikatorUpp());
-            String uppName = null;
-            byte[] uppData = null;
-            if (resp.getZalacznik() != null && 
-                    resp.getZalacznik().getZawartosc() != null) {
-                uppName = resp.getZalacznik().getNazwaPliku();
-                uppData = resp.getZalacznik().getZawartosc();
-            }
-
-            documents_sent.inc();
-            documents_sent_time.setToCurrentTime();
-
-            return new EpuapUPP(resp.getIdentyfikatorDokumentu(),
-                    resp.getIdentyfikatorUpp(),
-                    resp.getStatus().getKod(),
-                    resp.getStatus().getKomunikat(),
-                    uppName,
-                    uppData);
-        } catch (NadajFaultMsg e) {
-            e.printStackTrace();
-            LOG.error(e.toString());
-            return null;
+        OdpowiedzSkrytkiTyp resp = skrytka.nadaj(podmiot,
+                sendTo,
+                replyTo,
+                false,
+                null,
+                dokument);
+        LOG.info("document sent id: {}, upp: {}", 
+                resp.getIdentyfikatorDokumentu(), 
+                resp.getIdentyfikatorUpp());
+        String uppName = null;
+        byte[] uppData = null;
+        if (resp.getZalacznik() != null && 
+                resp.getZalacznik().getZawartosc() != null) {
+            uppName = resp.getZalacznik().getNazwaPliku();
+            uppData = resp.getZalacznik().getZawartosc();
         }
+
+        documents_sent.inc();
+        documents_sent_time.setToCurrentTime();
+
+        return new EpuapUPP(resp.getIdentyfikatorDokumentu(),
+                resp.getIdentyfikatorUpp(),
+                resp.getStatus().getKod(),
+                resp.getStatus().getKomunikat(),
+                uppName,
+                uppData);
     }
 
     /**
      * Sends a document.
      * @param doc a document to send
      * @return a confirmation that a document was sent
+     * @throws NadajFaultMsg 
      */
-    public EpuapUPP send(final EpuapDocument doc) {
+    public EpuapUPP send(final EpuapDocument doc) throws NadajFaultMsg {
         EpuapUPP upp = send(doc.getSendTo(),
                 doc.getReplyTo(),
                 doc.getFileName(),
@@ -584,8 +581,10 @@ public class EpuapService {
      * @param fileName name of a file
      * @param data contents of a file
      * @return the id of a file in the repository
+     * @throws OdbierzFaultMsg 
      */
-    public String upload(final String fileName, final byte[] data) {
+    public String upload(final String fileName, final byte[] data) 
+            throws OdbierzFaultMsg {
         LOG.info("uploading big file {} {}", fileName, data.length);
         UploadFileParam upload = new UploadFileParam();
         upload.setFilename(fileName);
@@ -595,15 +594,9 @@ public class EpuapService {
         DataSource ds = new ByteArrayDataSource(data, mime);
         DataHandler dataHandler = new DataHandler(ds);
         upload.setFile(dataHandler);
-        try {
-            String uploaded = repo.uploadFile(upload);
-            LOG.info("big file {} uploaded to {}", fileName, uploaded);
-            return uploaded;
-        } catch (OdbierzFaultMsg e) {
-            e.printStackTrace();
-            LOG.error(e.toString());
-            return null;
-        }
+        String uploaded = repo.uploadFile(upload);
+        LOG.info("big file {} uploaded to {}", fileName, uploaded);
+        return uploaded;
     }
 
 }

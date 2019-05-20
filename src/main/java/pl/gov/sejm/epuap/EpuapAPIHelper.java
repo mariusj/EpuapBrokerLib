@@ -1,5 +1,7 @@
 package pl.gov.sejm.epuap;
 
+import pl.gov.epuap.ws.filerepo.OdbierzFaultMsg;
+import pl.gov.epuap.ws.skrytka.NadajFaultMsg;
 import pl.gov.sejm.epuap.model.DocStatus;
 import pl.gov.sejm.epuap.model.EpuapAttachment;
 import pl.gov.sejm.epuap.model.EpuapDocument;
@@ -32,8 +34,9 @@ public class EpuapAPIHelper {
      * Downloads an attachment with specified id.
      * @param id the id of an attachment 
      * @return an attachment
+     * @throws OdbierzFaultMsg 
      */
-    public EpuapAttachment downloadAttachment(final String id) {
+    public EpuapAttachment downloadAttachment(final String id) throws OdbierzFaultMsg {
         EpuapAttachment attachment = service.downloadAttachment(id);
         store.addAttachment(null, attachment);
         return attachment;        
@@ -43,8 +46,9 @@ public class EpuapAPIHelper {
      * Sends a document through the ePUAP.
      * @param docId a document id
      * @return a confirmation of sending a document
+     * @throws NadajFaultMsg 
      */
-    public EpuapUPP sendDocument(final String docId) {
+    public EpuapUPP sendDocument(final String docId) throws NadajFaultMsg {
         EpuapDocument doc = store.getDocumentByStoreId(docId);
         EpuapUPP upp = service.send(doc);
         store.saveUPP(docId, upp);
@@ -56,8 +60,9 @@ public class EpuapAPIHelper {
      * Uploads an attachment to the ePUAP.
      * @param id an id of an attachment in the store to upload
      * @return the id of the uploaded file
+     * @throws OdbierzFaultMsg 
      */
-    public String uploadAttachment(final String id) {
+    public String uploadAttachment(final String id) throws OdbierzFaultMsg {
         EpuapAttachment att = store.getAttachment(id);
         String fileId = service.upload(att.getFileName(), att.getBytes());
         att.setURI(fileId);
