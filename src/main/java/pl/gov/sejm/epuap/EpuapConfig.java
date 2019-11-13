@@ -1,6 +1,9 @@
 package pl.gov.sejm.epuap;
 
 import java.util.List;
+import java.util.Properties;
+
+import javax.security.auth.callback.CallbackHandler;
 
 /**
  * Provides configuration for the broker.
@@ -50,5 +53,23 @@ public interface EpuapConfig {
      * @return true if .zip files should be extracted
      */
     boolean isExtractZIP();
+    
+    /**
+     * If this flag is set to true then logging of messages will be enabled.
+     * @return
+     */
+    boolean isLoggingEnabled();
+    
+    /**
+     * Returns a class that is used to authenticate to the keystore.
+     * @return
+     */
+    Class<? extends CallbackHandler> getPasswordCallback();
+
+    /**
+     * Returns properties required for signing a message.
+     * @return
+     */
+    Properties getSignatureProperties();
 
 }

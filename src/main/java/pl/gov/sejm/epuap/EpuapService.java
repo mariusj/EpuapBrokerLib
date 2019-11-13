@@ -8,7 +8,9 @@ import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -27,6 +29,10 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.feature.Feature;
+import org.apache.cxf.frontend.ClientProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -113,6 +119,10 @@ public class EpuapService {
     
     private TransformerFactory transformerFactory = 
             TransformerFactory.newInstance();
+
+    private Bus bus;
+
+    private org.apache.cxf.ext.logging.LoggingFeature loggingFeature;
     
 
     /**
@@ -122,35 +132,47 @@ public class EpuapService {
     public EpuapService(final EpuapConfig config) {
         LOG.info("Creating ePUAP service");
         this.config = config;
-
+        this.bus = BusFactory.getDefaultBus();
+        this.loggingFeature = new org.apache.cxf.ext.logging.LoggingFeature();
+        loggingFeature.setVerbose(true);
+        loggingFeature.setPrettyLogging(true);
+        if (config.isLoggingEnabled()) {
+            Collection<Feature> features = bus.getFeatures();
+            features.add(loggingFeature);
+            bus.setFeatures(features);
+        }
+        
         PkPullService pullSvc = new PkPullService();
         pull = pullSvc.getPull();
-        setPortAddress((BindingProvider) pull, config.getPullService());
+        initializeService((BindingProvider) pull, config.getPullService());
 
         FileRepoService repoSvc = new FileRepoService();
         repo = repoSvc.getFilerepo();
-        setPortAddress((BindingProvider) repo, config.getFileRepoService());
+        initializeService((BindingProvider) repo, config.getFileRepoService());
 
         PkSkrytkaService skrytkaSvc = new PkSkrytkaService();
         skrytka = skrytkaSvc.getSkrytka();
-        setPortAddress((BindingProvider) skrytka, config.getSkrytkaService());
+        initializeService((BindingProvider) skrytka, config.getSkrytkaService());
     }
 
     /**
-     * Sets a SOAP port address.
+     * Configures a SOAP service (e.g. port address).
      * @param port a service port
      * @param url a service URL address
      */
-    private void setPortAddress(
+    protected void initializeService(
             final BindingProvider port,
             final String url) {
+        org.apache.cxf.endpoint.Client client = ClientProxy.getClient(port);
+        if (config.isLoggingEnabled()) {
+            loggingFeature.initialize(client, bus);
+        }
+        Map<String, Object> ctx = port.getRequestContext();
+        ctx.put("security.signature.properties", config.getSignatureProperties());
+        ctx.put("security.callback-handler", config.getPasswordCallback().getName());        
+        ctx.put("ws-security.asymmetric.signature.algorithm", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
         if (url != null) {
-            port
-                .getRequestContext()
-                .put(
-                    BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    url
-                );
+            ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
         }
     }
 

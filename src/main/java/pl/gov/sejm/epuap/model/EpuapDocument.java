@@ -11,6 +11,7 @@ import java.util.List;
 import javax.xml.XMLConstants;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.namespace.NamespaceContext;
@@ -45,7 +46,7 @@ public class EpuapDocument {
     private String storeID;
 
     private final String fromID;
-
+ 
     private final String replyTo;
 
     private final String inbox;
@@ -87,7 +88,34 @@ public class EpuapDocument {
     private final String sha;
 
     private final String sendTo;
-
+    
+    /**
+     * Ctor required by JAXB.
+     * Do not use.
+     */
+    public EpuapDocument() {
+        this.sendTo = null;
+        this.sha = null;
+        this.attachments = null;
+        this.docID = null;
+        this.digitalAccept = false;
+        this.senderType = null;
+        this.regon = null;
+        this.pesel = null;
+        this.nip = null;
+        this.senderLastName = null;
+        this.senderFirstName = null;
+        this.senderID = null;
+        this.data = null;
+        this.fileType = null;
+        this.fileName = null;
+        this.date = null;
+        this.addData = null;
+        this.inbox = null;
+        this.replyTo = null;
+        this.fromID = null;
+    }
+    
     /**
      * Creates a document received from the ePUAP service.
      *

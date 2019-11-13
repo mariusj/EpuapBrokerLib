@@ -135,7 +135,7 @@
 	
 	<service name="pkPullService">
 		<port binding="tns:pull" name="pull">
-			<soap:address location="https://epuap.gov.pl/pk_external_ws/services/pull" />
+			<soap:address location="https://ws.epuap.gov.pl/pk_external_ws/services/pull" />
 		</port>
 	</service>
 </definitions>
