@@ -126,7 +126,7 @@ public class EpuapDocument {
         if (addData != null && addData.length > 0) {
             try {
                 addDataXML = new String(addData, "UTF-8");
-                docId = extractDocId();
+                docId = extractDocId(addDataXML);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -393,10 +393,11 @@ public class EpuapDocument {
 
     /**
      * Extracts a document id from additional data.
+     * @param addDataXML 
      */
-    private String extractDocId() {
+    private String extractDocId(String addDataXML) {
         try {
-            org.w3c.dom.Document xmlDoc = parseXML(this.addDataXML);
+            org.w3c.dom.Document xmlDoc = parseXML(addDataXML);
             XPathExpression xID =
                     setupXPath("(//IdentyfikatorDokumentu)[last()]/text()");
             String id = (String) xID.evaluate(xmlDoc, XPathConstants.STRING);
