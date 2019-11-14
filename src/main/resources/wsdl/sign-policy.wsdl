@@ -35,7 +35,6 @@
                 <sp:Basic256Sha256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
-
           </wsp:Policy>
         </sp:AsymmetricBinding>
 
