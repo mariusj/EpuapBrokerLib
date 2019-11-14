@@ -2,19 +2,12 @@ package pl.gov.sejm.epuap.model;
 
 import java.io.UnsupportedEncodingException;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 /**
  * Confirmation of sending a document.
  *
  * @author Mariusz Jakubowski
  *
  */
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlRootElement(name = "UPP")
 public class EpuapUPP {
 
     private final String id;
@@ -98,7 +91,6 @@ public class EpuapUPP {
      *
      * @return UPP data
      */
-    @XmlTransient
     public byte[] getUppData() {
         return uppData;
     }
