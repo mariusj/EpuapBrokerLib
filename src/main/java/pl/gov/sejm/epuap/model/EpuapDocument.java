@@ -9,11 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,8 +34,6 @@ import pl.gov.epuap.wsdl.obiekty.DanePodmiotuTyp;
  * @author Mariusz Jakubowski
  *
  */
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlRootElement(name = "document")
 public class EpuapDocument {
 
     private String storeID;
@@ -270,7 +263,6 @@ public class EpuapDocument {
      * Returns additional data for this document.
      * @return additional data
      */
-    @XmlTransient
     public byte[] getAddData() {
         return addData;
     }
@@ -320,7 +312,6 @@ public class EpuapDocument {
      * Returns contents of this document.
      * @return contents of this document
      */
-    @XmlTransient
     public byte[] getData() {
         return data;
     }

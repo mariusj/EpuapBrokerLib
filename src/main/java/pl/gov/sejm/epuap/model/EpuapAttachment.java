@@ -5,11 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -17,8 +12,6 @@ import org.apache.commons.io.IOUtils;
  * @author Mariusz Jakubowski
  *
  */
-@XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlRootElement(name = "attachment")
 public class EpuapAttachment {
 
     private String storeID;
@@ -116,7 +109,6 @@ public class EpuapAttachment {
      * Returns a stream of bytes of this attachment.
      * @return a stream with contents of this attachment
      */
-    @XmlTransient
     public InputStream getStream() {
         if (bytes != null) {
             return new ByteArrayInputStream(bytes);
@@ -128,7 +120,6 @@ public class EpuapAttachment {
      * Sets a stream of bytes for this attachment.
      * @param stream a stream of bytes
      */
-    @XmlTransient
     public void setStream(final InputStream stream) {
         this.stream = stream;
     }
@@ -137,7 +128,6 @@ public class EpuapAttachment {
      * Returns an array of bytes for this attachment.
      * @return
      */
-    @XmlTransient
     public byte[] getBytes() {
         if (this.bytes != null) {
             return this.bytes;
