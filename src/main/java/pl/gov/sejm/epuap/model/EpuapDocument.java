@@ -46,7 +46,7 @@ public class EpuapDocument {
 
     private final byte[] addData;
 
-    private String addDataXML;
+    private final String addDataXML;
 
     private final Calendar date;
 
@@ -56,7 +56,7 @@ public class EpuapDocument {
 
     private final byte[] data;
 
-    private String dataXML;
+    private final String dataXML;
 
     private final String senderID;
 
@@ -74,7 +74,7 @@ public class EpuapDocument {
 
     private final boolean digitalAccept;
 
-    private String docID;
+    private final String docID;
 
     private final List<EpuapAttachment> attachments;
 
@@ -107,6 +107,8 @@ public class EpuapDocument {
         this.inbox = null;
         this.replyTo = null;
         this.fromID = null;
+        this.addDataXML = null;
+        this.dataXML = null;
     }
     
     /**
@@ -148,16 +150,18 @@ public class EpuapDocument {
         this.date = date;
 
         this.addData = addData;
+        String addDataXML = null;
+        String docId = null;
         if (addData != null && addData.length > 0) {
             try {
-                this.addDataXML = new String(addData, "UTF-8");
-                extractDocId();
+                addDataXML = new String(addData, "UTF-8");
+                docId = extractDocId();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-        } else {
-            this.addDataXML = null;
         }
+        this.addDataXML = addDataXML;
+        this.docID = docId;
 
         this.fileName = fileName;
         this.fileType = fileType;
@@ -165,15 +169,15 @@ public class EpuapDocument {
         this.data = data;
         this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
 
+        String dataXML = null;
         if ("application/xml".equals(fileType) || "XML".equals(fileType)) {
             try {
-                this.dataXML = new String(this.data, "UTF-8");
+                dataXML = new String(this.data, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-        } else {
-            this.dataXML = null;
         }
+        this.dataXML = dataXML;
 
         this.attachments = new ArrayList<>();
         this.extractAttachments();
@@ -200,11 +204,13 @@ public class EpuapDocument {
         this.data = data;
         this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
         this.attachments = new ArrayList<>();
+        String dataXML = null;
         try {
-            this.dataXML = new String(this.data, "UTF-8");
+            dataXML = new String(this.data, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        this.dataXML = dataXML;
         this.senderType = null;
         this.senderID = this.fromID;
         this.senderFirstName = null;
@@ -216,7 +222,9 @@ public class EpuapDocument {
         this.fileType = null;
         this.digitalAccept = true;
         this.addData = null;
+        this.addDataXML = null;
         this.date = null;
+        this.docID = null;
     }
 
     /**
@@ -415,7 +423,7 @@ public class EpuapDocument {
     /**
      * Extracts a document id from additional data.
      */
-    private void extractDocId() {
+    private String extractDocId() {
         try {
             org.w3c.dom.Document xmlDoc = parseXML(this.addDataXML);
             XPathExpression xID =
@@ -423,12 +431,13 @@ public class EpuapDocument {
             String id = (String) xID.evaluate(xmlDoc, XPathConstants.STRING);
             //System.out.println("eval " + id);
             if (id != null && !id.isEmpty()) {
-                this.docID = id;
+                return id;
             }
         } catch (ParserConfigurationException | SAXException
                 | IOException | XPathExpressionException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     /**
