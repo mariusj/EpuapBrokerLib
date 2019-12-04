@@ -469,7 +469,7 @@ public class EpuapService {
                         null, null, bytes, null);
                 store.addAttachment(parent, unzipped);
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             LOG.error(e.getMessage());
         }
