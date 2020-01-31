@@ -209,24 +209,27 @@ public class EpuapService {
      * @param inbox a name of an inbox
      * @throws PullFaultMsg 
      */
-    public void getDocuments(final Store store, final String inbox) 
+    public int importInbox(final Store store, final String inbox) 
             throws PullFaultMsg {
         LOG.info("importing documents from {}", inbox);
         int docs = getNumDocuments(inbox);
         if (docs == 0) {
             LOG.info("no documents to import from {}", inbox);
-            return;
+            return 0;
         }
         LOG.info("importing {} documents from {}", docs, inbox);
 
+        int imported = 0;
         for (int i = 0; i < docs; i++) {
             EpuapDocument doc = importAndSave(store, inbox);
             if (doc == null) {
                 LOG.info("no more documents in {}", inbox);
                 break;
             }
+            imported++;
         }
         LOG.info("import from {} completed", inbox);
+        return imported;
     }
 
     /**
