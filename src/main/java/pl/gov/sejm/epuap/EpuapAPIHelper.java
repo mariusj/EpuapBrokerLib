@@ -38,7 +38,9 @@ public class EpuapAPIHelper {
      */
     public EpuapAttachment downloadAttachment(final String id) throws OdbierzFaultMsg {
         EpuapAttachment attachment = service.downloadAttachment(id);
-        store.addAttachment(null, attachment);
+        if (attachment != null) {
+        	store.addAttachment(null, attachment);
+        }
         return attachment;        
     }
     

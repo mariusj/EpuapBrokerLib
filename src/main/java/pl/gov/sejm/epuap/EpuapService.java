@@ -431,15 +431,12 @@ public class EpuapService {
                 // for documents that are not embedded in XML but are
                 // stored in the ePUAP big file storage
                 // we have to download them
-                EpuapAttachment att2;
-                try {
-                    att2 = downloadAttachment(att.getURI());
-                    if (att2 != null) {
-                        att.setStream(att2.getStream());
-                    }
-                } catch (OdbierzFaultMsg e) {
-                    e.printStackTrace();
-                    LOG.error(e.getFaultInfo().getKomunikat());
+            	EpuapAttachment att2 = downloadAttachment(att.getURI());
+                if (att2 == null) {
+                	att2 = store.getAttachmentByURI(att.getURI());
+                } 
+                if (att2 != null) {
+                    att.setStream(att2.getStream());
                 }
             }
             store.addAttachment(edoc, att);
@@ -510,8 +507,7 @@ public class EpuapService {
      * @return a InputStream with attachment data
      * @throws OdbierzFaultMsg 
      */
-    public EpuapAttachment downloadAttachment(String docId) 
-            throws OdbierzFaultMsg {
+    public EpuapAttachment downloadAttachment(String docId) {
         LOG.info("downloading attachment {}", docId);
         DownloadFileParam download = new DownloadFileParam();
         if (docId.startsWith("http")) {
@@ -520,24 +516,33 @@ public class EpuapService {
         }
         download.setFileId(docId);
         download.setSubject(config.getOrg());
-        DownloadFile downloaded = repo.downloadFile(download);
-        LOG.info("download complete {} {}",
-                downloaded.getFilename(), downloaded.getMimeType());
-        EpuapAttachment attachment = new EpuapAttachment(
-                downloaded.getFilename(),
-                downloaded.getEncoding(),
-                downloaded.getMimeType(),
-                docId,
-                null);
-        DataHandler file = downloaded.getFile();
         try {
-            InputStream stream = file.getInputStream();
-            attachment.setStream(stream);
-        } catch (IOException e) {
+        	DownloadFile downloaded = repo.downloadFile(download);
+            LOG.info("download complete {} {}",
+                    downloaded.getFilename(), downloaded.getMimeType());
+            EpuapAttachment attachment = new EpuapAttachment(
+                    downloaded.getFilename(),
+                    downloaded.getEncoding(),
+                    downloaded.getMimeType(),
+                    docId,
+                    null);
+            DataHandler file = downloaded.getFile();
+            try {
+                InputStream stream = file.getInputStream();
+                attachment.setStream(stream);
+            } catch (IOException e) {
+                e.printStackTrace();
+                LOG.error(e.toString());
+            }
+            return attachment;
+        } catch (OdbierzFaultMsg e) {
             e.printStackTrace();
-            LOG.error(e.toString());
+            LOG.error(e.getFaultInfo().getKomunikat());
+        } catch (Throwable e) {
+        	e.printStackTrace();
+        	LOG.error(e.getMessage());
         }
-        return attachment;
+        return null;
     }
 
     /**
