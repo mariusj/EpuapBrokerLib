@@ -79,6 +79,14 @@ public interface Store {
      * @return an attachment with given id
      */
     EpuapAttachment getAttachment(String storeId);
+    
+    /**
+     * Gets an attachment from a store with a given URI.
+     *
+     * @param uri a URI of an attachment (the URI from ePUAP system)
+     * @return an attachment with given URI
+     */
+    EpuapAttachment getAttachmentByURI(String uri);
 
     /**
      * Called after attachment has been uploaded.
