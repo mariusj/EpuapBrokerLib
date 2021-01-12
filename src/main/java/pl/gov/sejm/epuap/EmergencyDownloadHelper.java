@@ -75,7 +75,6 @@ public class EmergencyDownloadHelper {
         Calendar cal = Calendar.getInstance();
         cal.setTime(sdf.parse(doc.getDataNadania()));
         byte[] data = Files.readAllBytes(path);
-        System.out.println(doc.getDataNadania());
         byte[] addData = Base64.decodeBase64(doc.getDaneDodatkowe());
         EpuapDocument eDoc = new EpuapDocument(doc.getDanePodmiotu().getIdentyfikator(), 
                 senderInfo, 
