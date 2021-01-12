@@ -1,6 +1,7 @@
 package pl.gov.sejm.epuap;
 
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -14,7 +15,6 @@ import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import javax.mail.util.ByteArrayDataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +31,7 @@ import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.attachment.ByteDataSource;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.slf4j.Logger;
@@ -433,6 +434,12 @@ public class EpuapService {
                 // we have to download them
             	EpuapAttachment att2 = downloadAttachment(att.getURI());
                 if (att2 == null) {
+                	// There is an error downloading attachment from the ePUAP
+                	// maybe we have downloaded this attachment earlier
+                	// try to get it from the store.
+                	// The ePUAP service doesn't allow to download the same
+                	// big file twice (even if it were attached to two 
+                	// different documents).
                 	att2 = store.getAttachmentByURI(att.getURI());
                 } 
                 if (att2 != null) {
@@ -621,7 +628,7 @@ public class EpuapService {
         String mime = EpuapAttachment.guessMIME(fileName);
         upload.setMimeType(mime);
         upload.setSubject(config.getOrg());
-        DataSource ds = new ByteArrayDataSource(data, mime);
+        DataSource ds = new ByteDataSource(data, mime);
         DataHandler dataHandler = new DataHandler(ds);
         upload.setFile(dataHandler);
         String uploaded = repo.uploadFile(upload);
