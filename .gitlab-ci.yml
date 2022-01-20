@@ -1,0 +1,12 @@
+include:
+  project: 'resources/dev_config'
+  file: 'gitlab/maven.yml'
+
+cache:
+  key: EpuapBrokerLib
+  paths:
+    - .m2/repository/
+    - target/
+
+deploy_mvn:
+  extends: .deploy_mvn
