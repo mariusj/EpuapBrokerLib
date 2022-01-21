@@ -125,10 +125,10 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <sources>
-                        <source>/src/main/resources/xsd/EmergencyDownload.xsd</source>
+                        <source>${basedir}/src/main/resources/xsd/EmergencyDownload.xsd</source>
                     </sources>
                     <xjbSources>
-                        <xjbSource>/src/main/resources/xsd/bindings.xjb</xjbSource>
+                        <xjbSource>${basedir}/src/main/resources/xsd/bindings.xjb</xjbSource>
                     </xjbSources>
                 </configuration>
             </plugin>
