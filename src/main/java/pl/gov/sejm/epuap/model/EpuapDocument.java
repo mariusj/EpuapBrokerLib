@@ -555,8 +555,7 @@ public class EpuapDocument {
             }
 
             // This method isn't necessary for XPath processing either.
-            @SuppressWarnings("rawtypes")
-            public Iterator getPrefixes(final String uri) {
+            public Iterator<String> getPrefixes(final String uri) {
                 throw new UnsupportedOperationException();
             }
         });
