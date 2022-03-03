@@ -207,6 +207,8 @@
 		<wsdl:operation name="dodajDokument">
 			<wsdlsoap:operation soapAction="" />
 			<wsdl:input name="dodajDokumentRequest">
+                <wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                URI="#Sign"/>
 				<wsdlsoap:body use="literal" />
 			</wsdl:input>
 			<wsdl:output name="dodajDokumentResponse">
@@ -216,6 +218,8 @@
 		<wsdl:operation name="pobierzDokument">
 			<wsdlsoap:operation soapAction="" />
 			<wsdl:input name="pobierzDokumentRequest">
+                <wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                URI="#Sign"/>
 				<wsdlsoap:body use="literal" />
 			</wsdl:input>
 			<wsdl:output name="pobierzDokumentResponse">
@@ -225,6 +229,8 @@
 		<wsdl:operation name="usunDokument">
 			<wsdlsoap:operation soapAction="" />
 			<wsdl:input name="usunDokumentRequest">
+                <wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                URI="#Sign"/>
 				<wsdlsoap:body use="literal" />
 			</wsdl:input>
 			<wsdl:output name="usunDokumentResponse">
@@ -234,6 +240,8 @@
 		<wsdl:operation name="zawartoscSkladu">
 			<wsdlsoap:operation soapAction="" />
 			<wsdl:input name="zawartoscSkladuRequest">
+                <wsp:PolicyReference xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                URI="#Sign"/>
 				<wsdlsoap:body use="literal" />
 			</wsdl:input>
 			<wsdl:output name="zawartoscSkladuResponse">

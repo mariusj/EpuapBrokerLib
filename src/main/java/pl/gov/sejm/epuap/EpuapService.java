@@ -1,11 +1,11 @@
 package pl.gov.sejm.epuap;
 
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +49,10 @@ import pl.gov.epuap.ws.pull.PullFaultMsg;
 import pl.gov.epuap.ws.skrytka.NadajFaultMsg;
 import pl.gov.epuap.ws.skrytka.PkSkrytkaService;
 import pl.gov.epuap.ws.skrytka.Skrytka;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.SkladTyp;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.ZarzadzanieDokumentami;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.ZarzadzanieDokumentamiService;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.ZawartoscSkladuTyp;
 import pl.gov.epuap.wsdl.filerepocore.DownloadFile;
 import pl.gov.epuap.wsdl.filerepocore.DownloadFileParam;
 import pl.gov.epuap.wsdl.filerepocore.UploadFileParam;
@@ -112,6 +116,8 @@ public class EpuapService {
 
     /** The Skrytka service */
     private Skrytka skrytka;
+    
+    private ZarzadzanieDokumentami zarzadzanieDokumentami;
 
     private DocumentBuilderFactory docBuilderFactory = 
             DocumentBuilderFactory.newInstance();
@@ -154,6 +160,10 @@ public class EpuapService {
         PkSkrytkaService skrytkaSvc = new PkSkrytkaService();
         skrytka = skrytkaSvc.getSkrytka();
         initializeService((BindingProvider) skrytka, config.getSkrytkaService());
+        
+        ZarzadzanieDokumentamiService zarzdokSvc = new ZarzadzanieDokumentamiService();
+        zarzadzanieDokumentami = zarzdokSvc.getZarzadzanieDokumentami();
+        initializeService((BindingProvider) zarzadzanieDokumentami, config.getZarzadzanieDokumentamiService());
     }
 
     /**
@@ -642,5 +652,18 @@ public class EpuapService {
         LOG.info("big file {} uploaded to {}", fileName, uploaded);
         return uploaded;
     }
+
+    /**
+     * Returns a list of documents in the inbox.
+     * @param inbox
+     * @return
+     */
+	public ZawartoscSkladuTyp listInbox(String inbox) {
+		SkladTyp sklad = new SkladTyp();
+		sklad.setNazwa(inbox);
+		sklad.setPodmiot(config.getOrg());
+		ZawartoscSkladuTyp zawartoscSkladu = zarzadzanieDokumentami.zawartoscSkladu(sklad);
+		return zawartoscSkladu;
+	}
 
 }

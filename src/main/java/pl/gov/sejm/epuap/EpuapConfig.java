@@ -40,6 +40,13 @@ public interface EpuapConfig {
      * @return skrytka service address
      */
     String getSkrytkaService();
+    
+    /**
+     * Returns address of the ZarzadzanieDokumentami service.
+     *
+     * @return ZarzadzanieDokumentami service address
+     */
+    String getZarzadzanieDokumentamiService();
 
     /**
      * Returns a list of inboxes to import.
