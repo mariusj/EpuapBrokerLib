@@ -468,7 +468,12 @@ public class EpuapService {
         try {
         	LOG.info("extracting zip file {}", zipAtt.getFileName());
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
-            Utils.extractZip(tempDir, zipAtt.getStream());
+            try {
+            	Utils.extractZip(tempDir, zipAtt.getStream());
+            } catch (IllegalArgumentException e) {
+            	// extract files packed in DOS encoding
+            	Utils.extractZip(tempDir, zipAtt.getStream(), Charset.forName("CP852"));
+            }
             DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir);
             for (Path path : dir) {
                 byte[] bytes = Files.readAllBytes(path);
