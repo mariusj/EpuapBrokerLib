@@ -466,6 +466,7 @@ public class EpuapService {
             final EpuapDocument parent, 
             final EpuapAttachment zipAtt) {
         try {
+        	LOG.info("extracting zip file {}", zipAtt.getFileName());
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
             Utils.extractZip(tempDir, zipAtt.getStream());
             DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir);
@@ -474,11 +475,12 @@ public class EpuapService {
                 EpuapAttachment unzipped = new EpuapAttachment(
                         path.getFileName().toString(), 
                         null, null, bytes, null);
+                LOG.info("adding extracted attachment {}", path.getFileName().toString());
                 store.addAttachment(parent, unzipped);
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            LOG.error(e.getMessage());
+            LOG.error("error extracting zip file {} - {}", zipAtt.getFileName(), e.getMessage());
         }
         
     }
