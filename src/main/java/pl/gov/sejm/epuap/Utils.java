@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -33,8 +34,19 @@ public class Utils {
      * @throws IOException
      */
     public static void extractZip(Path baseDir, InputStream stream) throws IOException {
+    	extractZip(baseDir, stream, Charset.defaultCharset());    	
+    }
+    
+    /**
+     * Extracts a zip file to a specified directory.
+     * @param stream a stream of bytes to extract
+     * @param charset 
+     * @param tempDir a temp directory
+     * @throws IOException
+     */
+    public static void extractZip(Path baseDir, InputStream stream, Charset charset) throws IOException {
         byte[] buffer = new byte[1024];
-        ZipInputStream zis = new ZipInputStream(stream);
+        ZipInputStream zis = new ZipInputStream(stream, charset);
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
             File newFile = newFile(baseDir, zipEntry);
