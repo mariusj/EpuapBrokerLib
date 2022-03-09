@@ -1,6 +1,9 @@
 package pl.gov.sejm.epuap.model;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -13,6 +16,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -26,6 +31,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import pl.gov.epuap.ws.zarzadzaniedokumentami.DokumentTyp;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.SzczegolyDokumentuTyp;
 import pl.gov.epuap.wsdl.obiekty.DanePodmiotuTyp;
 
 /**
@@ -81,6 +88,13 @@ public class EpuapDocument {
     private final String sha;
 
     private final String sendTo;
+    
+    private final String formName;
+    
+    private final String folder;
+    
+    private final Integer idUPO;
+    
     
     /**
      * Creates a document received from the ePUAP service.
@@ -149,6 +163,9 @@ public class EpuapDocument {
             }
         }
         this.dataXML = dataXML;
+        this.formName = null;
+        this.folder = null;
+        this.idUPO = null;
 
         this.attachments = new ArrayList<>();
         this.extractAttachments();
@@ -196,9 +213,83 @@ public class EpuapDocument {
         this.addDataXML = null;
         this.date = null;
         this.docID = null;
+        this.formName = null;
+        this.folder = null;
+        this.idUPO = null;
     }
 
+    public EpuapDocument(DokumentTyp doc) {
+    	SzczegolyDokumentuTyp meta = doc.getSzczegolyDokumentu();
+		this.docID = Integer.toString(meta.getId());
+	    this.fromID = meta.getNadawca() != null ? meta.getNadawca().getNazwa() : null;	    
+	    this.replyTo = meta.getNadawca() != null ? meta.getNadawca().getAdres() : null;
+	    this.inbox = meta.getAdresat() != null ? meta.getAdresat().getAdres() : null;
+	    this.sendTo = meta.getAdresat() != null ? meta.getAdresat().getNazwa() : null;
+	    this.addData = null;
+	    Source metadane = meta.getMetadane();
+	    this.addDataXML = readFromSource(metadane);
+	    this.date = meta.getDataNadania() != null ? meta.getDataNadania().toGregorianCalendar() : null;
+	    this.fileName = meta.getNazwa();
+	    this.fileType = null;
+	    this.data = null;
+	    this.dataXML = readFromSource(doc.getTresc());
+	    this.senderID = null;
+	    this.senderFirstName = null;
+	    this.senderLastName = null;
+	    this.nip = null;
+	    this.pesel = null;
+	    this.regon = null;
+	    this.senderType = null;
+	    this.digitalAccept = true;
+	    this.sha = null;
+	    if (meta.getFormularz() != null) {
+	    	this.formName = meta.getFormularz().getPodmiot() + "/" + meta.getFormularz().getNazwa();
+	    } else {
+	    	this.formName = null;
+	    }
+	    this.folder = meta.getFolder();
+	    this.idUPO = meta.getIdUPO();
+        this.attachments = new ArrayList<>();
+        this.extractAttachments();
+	}
+
     /**
+     * Reads contents of a XML source.
+     * @param source
+     * @return
+     */
+	private String readFromSource(Source source) {
+		try {
+		    if (source instanceof StreamSource) {
+		    	System.out.println("is streamsource");
+		    	StreamSource ss = (StreamSource) source;
+		    	BufferedReader br;
+		    	if (ss.getReader() != null) {
+		    		br = new BufferedReader(ss.getReader());
+		    	} else {
+		    		System.out.println("reader is null");
+			    	InputStream is = ss.getInputStream();
+			    	if (is == null) {
+			    		System.out.println("is is null");
+			    		return null;
+			    	}
+			    	br = new BufferedReader(new InputStreamReader(is));			    	
+		    	}		    	
+		    	String line = br.readLine();
+		    	StringBuilder out = new StringBuilder();
+		    	while (line != null) {
+		    		out.append(line);
+		    		line = br.readLine();
+		    	}
+		    	return out.toString();
+		    }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
      * Returns an id of the document in the store.
      * @return an id of the document
      */
@@ -390,6 +481,30 @@ public class EpuapDocument {
     public String getSHA() {
         return sha;
     }
+    
+    /**
+     * Returns name of the form in which this document was created.
+     * @return
+     */
+    public String getFormName() {
+		return formName;
+	}
+    
+    /**
+     * Returns a folder in the ePUAP inbox.
+     * @return
+     */
+    public String getFolder() {
+		return folder;
+	}
+    
+    /**
+     * Id of the source document.
+     * @return
+     */
+    public Integer getIdUPO() {
+		return idUPO;
+	}
 
     /**
      * Extracts a document id from additional data.

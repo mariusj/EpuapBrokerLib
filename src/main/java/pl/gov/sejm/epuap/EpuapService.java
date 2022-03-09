@@ -665,5 +665,13 @@ public class EpuapService {
 		ZawartoscSkladuTyp zawartoscSkladu = zarzadzanieDokumentami.zawartoscSkladu(sklad);
 		return zawartoscSkladu;
 	}
+	
+	/**
+	 * Downloads a document with a given ID.
+	 * @return 
+	 */
+	public pl.gov.epuap.ws.zarzadzaniedokumentami.DokumentTyp downloadDocument(int id) {
+		return zarzadzanieDokumentami.pobierzDokument(id, config.getOrg());
+	}
 
 }
