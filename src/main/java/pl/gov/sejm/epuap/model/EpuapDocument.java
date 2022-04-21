@@ -31,7 +31,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import pl.gov.epuap.ws.zarzadzaniedokumentami.DokumentTyp;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.AdresatTyp;
+import pl.gov.epuap.ws.zarzadzaniedokumentami.NadawcaTyp;
 import pl.gov.epuap.ws.zarzadzaniedokumentami.SzczegolyDokumentuTyp;
 import pl.gov.epuap.wsdl.obiekty.DanePodmiotuTyp;
 
@@ -42,6 +43,13 @@ import pl.gov.epuap.wsdl.obiekty.DanePodmiotuTyp;
  *
  */
 public class EpuapDocument {
+	
+	public static final String FOLDER_RECEIVED = "RECEIVED";
+
+	public static final String FOLDER_SENT = "SENT";
+
+	public static final String FOLDER_DRAFT = "DRAFT";
+	
 
     private String storeID;
 
@@ -66,6 +74,8 @@ public class EpuapDocument {
     private final String dataXML;
 
     private final String senderID;
+    
+    private final String senderBox;
 
     private final String senderFirstName;
 
@@ -88,6 +98,8 @@ public class EpuapDocument {
     private final String sha;
 
     private final String sendTo;
+    
+    private final String sendToName;
     
     private final String formName;
     
@@ -123,6 +135,7 @@ public class EpuapDocument {
         this.senderID = senderInfo.getIdentyfikator();
         this.senderFirstName = senderInfo.getImieSkrot();
         this.senderLastName = senderInfo.getNazwiskoNazwa();
+        this.senderBox = null;
         this.nip = senderInfo.getNip();
         this.pesel = senderInfo.getPesel();
         this.regon = senderInfo.getRegon();
@@ -130,6 +143,7 @@ public class EpuapDocument {
         this.digitalAccept = senderInfo.isZgoda();
         this.replyTo = replyTo;
         this.sendTo = null;
+        this.sendToName = null;
 
         this.inbox = inbox;
         this.date = date;
@@ -188,6 +202,7 @@ public class EpuapDocument {
         this.fromID = fromID;
         this.replyTo = replyTo;
         this.sendTo = sendTo;
+        this.sendToName = null;
         this.fileName = fileName;
         this.data = data;
         this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
@@ -201,6 +216,7 @@ public class EpuapDocument {
         this.dataXML = dataXML;
         this.senderType = null;
         this.senderID = this.fromID;
+        this.senderBox = null;
         this.senderFirstName = null;
         this.senderLastName = null;
         this.regon = null;
@@ -218,24 +234,39 @@ public class EpuapDocument {
         this.idUPO = null;
     }
 
-    public EpuapDocument(DokumentTyp doc) {
-    	SzczegolyDokumentuTyp meta = doc.getSzczegolyDokumentu();
+    /**
+     * Creates a document from data obtained from <code>ZarzadzanieDokumentami</code> service.
+     * @param meta a metadata of a document
+     * @param body a body of a document
+     */
+    public EpuapDocument(SzczegolyDokumentuTyp meta, Source body) {
 		this.docID = Integer.toString(meta.getId());
-	    this.fromID = meta.getNadawca() != null ? meta.getNadawca().getNazwa() : null;	    
-	    this.replyTo = meta.getNadawca() != null ? meta.getNadawca().getAdres() : null;
+    	this.idUPO = meta.getIdUPO() != null ? meta.getIdUPO() : 0;
+	    this.fromID = null;
+
+	    this.senderFirstName = null;
+		NadawcaTyp nadawca = meta.getNadawca();
+	    this.replyTo = nadawca != null ? nadawca.getAdres() : null;
+	    this.senderLastName = nadawca != null ? nadawca.getNazwa() : null;
+		if (nadawca != null && nadawca.getAdres() != null && !nadawca.getAdres().isEmpty()) {
+			this.senderID = nadawca.getAdres().split("/")[1];
+			this.senderBox = nadawca.getAdres().split("/")[2];
+		} else {
+			this.senderID = null;
+			this.senderBox = null;
+		}
+		AdresatTyp adresat = meta.getAdresat();
+	    this.sendTo = adresat != null ? adresat.getAdres() : null;
+	    this.sendToName = adresat != null ? adresat.getNazwa() : null;
+	    
 	    this.inbox = meta.getAdresat() != null ? meta.getAdresat().getAdres() : null;
-	    this.sendTo = meta.getAdresat() != null ? meta.getAdresat().getNazwa() : null;
 	    this.addData = null;
-	    Source metadane = meta.getMetadane();
-	    this.addDataXML = readFromSource(metadane);
+	    this.addDataXML = readFromSource(meta.getMetadane());
 	    this.date = meta.getDataNadania() != null ? meta.getDataNadania().toGregorianCalendar() : null;
 	    this.fileName = meta.getNazwa();
 	    this.fileType = null;
 	    this.data = null;
-	    this.dataXML = readFromSource(doc.getTresc());
-	    this.senderID = null;
-	    this.senderFirstName = null;
-	    this.senderLastName = null;
+	    this.dataXML = readFromSource(body);
 	    this.nip = null;
 	    this.pesel = null;
 	    this.regon = null;
@@ -248,11 +279,10 @@ public class EpuapDocument {
 	    	this.formName = null;
 	    }
 	    this.folder = meta.getFolder();
-	    this.idUPO = meta.getIdUPO();
         this.attachments = new ArrayList<>();
         this.extractAttachments();
 	}
-
+    
     /**
      * Reads contents of a XML source.
      * @param source
@@ -260,7 +290,7 @@ public class EpuapDocument {
      */
 	private String readFromSource(Source source) {
 		try {
-		    if (source instanceof StreamSource) {
+		    if (source != null && source instanceof StreamSource) {
 		    	System.out.println("is streamsource");
 		    	StreamSource ss = (StreamSource) source;
 		    	BufferedReader br;
@@ -361,6 +391,14 @@ public class EpuapDocument {
     public String getSendTo() {
         return sendTo;
     }
+    
+    /**
+     * Returns name of the recipient.
+     * @return a name of recipient
+     */
+    public String getSendToName() {
+		return sendToName;
+	}
 
     /**
      * Returns name of the file.
@@ -401,6 +439,14 @@ public class EpuapDocument {
     public String getSenderID() {
         return senderID;
     }
+
+    /**
+     * A name of a box from where sender sent this message.
+     * @return a name of a box
+     */
+    public String getSenderBox() {
+		return senderBox;
+	}
 
     /**
      * Returns first name of the sender.

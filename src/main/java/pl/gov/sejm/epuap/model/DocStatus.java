@@ -8,6 +8,8 @@ package pl.gov.sejm.epuap.model;
  */
 public enum DocStatus {
     
+	/** Meta information about a document is downloaded */
+	META("M"),
     /** Document is downloaded from ePUAP. */
     DOWNLOADED("D"),
     /** Document and attachments are downloaded. */
