@@ -278,7 +278,8 @@ public class EpuapDocument {
 	    this.digitalAccept = true;
 	    this.sha = null;
 	    if (meta.getFormularz() != null) {
-	    	this.formName = meta.getFormularz().getPodmiot() + "/" + meta.getFormularz().getNazwa();
+	    	// probably bug in ePUAP: nazwa - org id, podmiot - form name
+	    	this.formName = meta.getFormularz().getNazwa() + "/" + meta.getFormularz().getPodmiot();
 	    } else {
 	    	this.formName = null;
 	    }
@@ -303,7 +304,6 @@ public class EpuapDocument {
 		    	if (ss.getReader() != null) {
 		    		br = new BufferedReader(ss.getReader());
 		    	} else {
-		    		LOG.info("StreamSource reader is null");
 			    	InputStream is = ss.getInputStream();
 			    	if (is == null) {
 			    		LOG.error("StreamSource InputStream is null");
