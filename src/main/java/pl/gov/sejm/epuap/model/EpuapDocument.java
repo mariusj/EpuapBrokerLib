@@ -26,6 +26,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -50,6 +52,8 @@ public class EpuapDocument {
 
 	public static final String FOLDER_DRAFT = "DRAFT";
 	
+    private static final Logger LOG = 
+            LoggerFactory.getLogger(EpuapDocument.class);
 
     private String storeID;
 
@@ -289,18 +293,20 @@ public class EpuapDocument {
      * @return
      */
 	private String readFromSource(Source source) {
+		if (source == null) {
+			return null;
+		}
 		try {
-		    if (source != null && source instanceof StreamSource) {
-		    	System.out.println("is streamsource");
+		    if (source instanceof StreamSource) {
 		    	StreamSource ss = (StreamSource) source;
 		    	BufferedReader br;
 		    	if (ss.getReader() != null) {
 		    		br = new BufferedReader(ss.getReader());
 		    	} else {
-		    		System.out.println("reader is null");
+		    		LOG.info("StreamSource reader is null");
 			    	InputStream is = ss.getInputStream();
 			    	if (is == null) {
-			    		System.out.println("is is null");
+			    		LOG.error("StreamSource InputStream is null");
 			    		return null;
 			    	}
 			    	br = new BufferedReader(new InputStreamReader(is));			    	
@@ -308,12 +314,14 @@ public class EpuapDocument {
 		    	String line = br.readLine();
 		    	StringBuilder out = new StringBuilder();
 		    	while (line != null) {
-		    		out.append(line);
+		    		out.append(line).append("\n");
 		    		line = br.readLine();
 		    	}
 		    	return out.toString();
+		    } else {
+		    	LOG.error("Source is not StreamSource: {}", source.getClass().getName());
 		    }
-		} catch (IOException e) {
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 		return null;
