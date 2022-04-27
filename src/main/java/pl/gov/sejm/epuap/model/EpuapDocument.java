@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -245,7 +246,7 @@ public class EpuapDocument {
      */
     public EpuapDocument(SzczegolyDokumentuTyp meta, Source body) {
 		this.docID = Integer.toString(meta.getId());
-    	this.idUPO = meta.getIdUPO() != null ? meta.getIdUPO() : 0;
+    	this.idUPO = meta.getIdUPO() != null ? meta.getIdUPO() : null;
 	    this.fromID = null;
 
 	    this.senderFirstName = null;
@@ -269,8 +270,8 @@ public class EpuapDocument {
 	    this.date = meta.getDataNadania() != null ? meta.getDataNadania().toGregorianCalendar() : null;
 	    this.fileName = meta.getNazwa();
 	    this.fileType = null;
-	    this.data = null;
 	    this.dataXML = readFromSource(body);
+	    this.data = dataXML != null ? dataXML.getBytes(Charset.forName("UTF-8")) : null;
 	    this.nip = null;
 	    this.pesel = null;
 	    this.regon = null;
@@ -309,7 +310,7 @@ public class EpuapDocument {
 			    		LOG.error("StreamSource InputStream is null");
 			    		return null;
 			    	}
-			    	br = new BufferedReader(new InputStreamReader(is));			    	
+			    	br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));			    	
 		    	}		    	
 		    	String line = br.readLine();
 		    	StringBuilder out = new StringBuilder();
