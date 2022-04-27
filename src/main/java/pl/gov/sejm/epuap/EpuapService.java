@@ -335,11 +335,11 @@ public class EpuapService {
     }
 
     /**
-     * Converts a document in the XML format to the HTML format.
+     * Converts a document in the XML format to the HTML format,
      * using associated XSL.
      * @param store a store
      * @param doc a document to transform
-     * @return a transformed document
+     * @return an HTML representation of a document
      */
     public String toHTML(final Store store, final EpuapDocument doc) {
         LOG.info("Generating HTML for {}", doc.getDocID());
@@ -356,17 +356,40 @@ public class EpuapService {
         }
         DOMSource xmlSource = toXMLSource(doc.getDataXML());
         Source stylesheet = getXSLFor(xmlSource, store);
-        try {
-            Transformer transformer = 
-                    transformerFactory.newTransformer(stylesheet);
-            StringWriter writer = new StringWriter();
-            transformer.transform(xmlSource, new StreamResult(writer));
-            return writer.toString();            
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error(e.getMessage());
-            return null;
+        if (stylesheet != null) {
+	        try {
+	            Transformer transformer = 
+	                    transformerFactory.newTransformer(stylesheet);
+	            StringWriter writer = new StringWriter();
+	            transformer.transform(xmlSource, new StreamResult(writer));
+	            return writer.toString();            
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            LOG.error("error converting HTML for document {} - {}", doc.getDocID(), e.getMessage());
+	        }
         }
+        return null;
+    }
+    
+    /**
+     * Converts a document in the XML format to the HTML format,
+     * and saves a resulting HTML into the store.
+     * @param store a store
+     * @param doc a document to transform
+     * @return true if conversion was successful
+     */
+    public boolean saveHTML(final Store store, final EpuapDocument doc) {
+		try {
+	        String html = toHTML(store, doc);
+	        if (html != null) {
+	            store.saveHTML(doc, html);
+	            return true;
+	        }
+		} catch (Throwable e) {
+			e.printStackTrace();
+			LOG.error("error saving HTML for document {} - {} ", doc.getDocID(), e.getMessage());
+		}
+        return false;
     }
 
     /**
@@ -406,7 +429,7 @@ public class EpuapService {
             return stylesheet;
         } catch (Exception e) {           
             e.printStackTrace();
-            LOG.error(e.getMessage());
+            LOG.error("error getting XSL {}", e.getMessage());
             return null;
         }
     }
