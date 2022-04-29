@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -293,7 +294,8 @@ public class EpuapService {
         String typPliku = dok.getTypPliku();
         byte[] bytes = dok.getZawartosc();
 
-        EpuapDocument documentInfo = new EpuapDocument(sender,
+        EpuapDocument documentInfo = new EpuapDocument(
+        		sender,
                 danePodmiotu,
                 adresOdpowiedzi,
                 adresSkrytki,
@@ -355,7 +357,16 @@ public class EpuapService {
             docBuilder.reset();
         }
         DOMSource xmlSource = toXMLSource(doc.getDataXML());
-        Source stylesheet = getXSLFor(xmlSource, store);
+        boolean containsXsl = doc.getDataXML().contains("<?xml-stylesheet");
+        Source stylesheet = null;
+        if (containsXsl) {
+        	// get xsl from associated xml-stylesheet
+        	stylesheet = getXSLFor(xmlSource, store);
+        }
+        if (stylesheet == null) {
+        	// get xsl from wyró¿nik
+        	stylesheet = getXSLFor(doc.getDataXML(), store);
+        }
         if (stylesheet != null) {
 	        try {
 	            Transformer transformer = 
@@ -371,7 +382,7 @@ public class EpuapService {
         return null;
     }
     
-    /**
+	/**
      * Converts a document in the XML format to the HTML format,
      * and saves a resulting HTML into the store.
      * @param store a store
@@ -411,8 +422,9 @@ public class EpuapService {
     }
 
     /**
-     * Extracts a stylesheet for a given XML.
+     * Extracts a stylesheet for a given XML from a link embedded in this XML.
      * @param xmlSource a XML with associated XSL
+     * @param store a Store
      * @return a stylesheet
      */
     private Source getXSLFor(final DOMSource xmlSource, final Store store) {
@@ -434,6 +446,37 @@ public class EpuapService {
         }
     }
 
+    /**
+     * Extracts XSL from type associated with this XML (from  wyró¿nik from CRD).
+     * @param dataXML an XML document
+     * @param store a Store
+     * @return a stylesheet
+     */
+    private Source getXSLFor(String dataXML, final Store store) {
+		int start = dataXML.indexOf("crd.gov.pl/wzor");
+		if (start > -1) {
+			int end = dataXML.indexOf('"', start);
+			start = dataXML.lastIndexOf('"', start);
+			if (start > -1 && end > -1) {
+				String addr = dataXML.substring(start + 1, end) + "styl.xsl";
+				String xsl = store.loadStyleSheet(addr);
+	            if (xsl == null) {
+					try {
+						StreamSource stylesheet = new StreamSource(new URL(addr).openStream());
+		                saveStylesheet(store, addr, stylesheet);
+		                return stylesheet;
+					} catch (IOException | TransformerException e) {
+						e.printStackTrace();
+					}
+	            } else {                
+	                return new StreamSource(new StringReader(xsl));
+	            }
+			}
+		}
+		return null;
+	}
+
+    
     /**
      * Saves a stylesheet in the store.
      * @param store a store where stylesheet will be saved
