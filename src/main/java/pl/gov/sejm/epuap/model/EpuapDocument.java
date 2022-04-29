@@ -55,6 +55,8 @@ public class EpuapDocument {
 	
     private static final Logger LOG = 
             LoggerFactory.getLogger(EpuapDocument.class);
+    
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     private String storeID;
 
@@ -98,7 +100,7 @@ public class EpuapDocument {
 
     private final String docID;
 
-    private final List<EpuapAttachment> attachments;
+    private final List<EpuapAttachment> attachments = new ArrayList<>();
 
     private final String sha;
 
@@ -126,7 +128,8 @@ public class EpuapDocument {
      * @param fileType a type of the document
      * @param data an array of bytes with content of the file
      */
-    public EpuapDocument(final String fromID,
+    public EpuapDocument(
+    		final String fromID,
             final DanePodmiotuTyp senderInfo,
             final String replyTo,
             final String inbox,
@@ -135,7 +138,6 @@ public class EpuapDocument {
             final String fileName,
             final String fileType,
             final byte[] data) {
-        super();
         this.fromID = fromID;
         this.senderID = senderInfo.getIdentyfikator();
         this.senderFirstName = senderInfo.getImieSkrot();
@@ -159,7 +161,7 @@ public class EpuapDocument {
         if (addData != null && addData.length > 0) {
             try {
                 addDataXML = new String(addData, "UTF-8");
-                docId = extractDocId(addDataXML);
+              	docId = extractDocId(addDataXML);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -186,7 +188,6 @@ public class EpuapDocument {
         this.folder = null;
         this.idUPO = null;
 
-        this.attachments = new ArrayList<>();
         this.extractAttachments();
     }
 
@@ -211,7 +212,6 @@ public class EpuapDocument {
         this.fileName = fileName;
         this.data = data;
         this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
-        this.attachments = new ArrayList<>();
         String dataXML = null;
         try {
             dataXML = new String(this.data, "UTF-8");
@@ -285,11 +285,79 @@ public class EpuapDocument {
 	    	this.formName = null;
 	    }
 	    this.folder = meta.getFolder();
-        this.attachments = new ArrayList<>();
         this.extractAttachments();
 	}
-    
+
     /**
+     * Ctor.
+     * @param docID
+     * @param storeID
+     * @param fileName
+     * @param date
+     * @param inbox
+     * @param senderID
+     * @param senderFirstName
+     * @param senderLastName
+     * @param fromID
+     * @param replyTo
+     * @param senderBox
+     * @param sendTo
+     * @param sendToName
+     * @param formName
+     * @param idUPO
+     * @param data
+     * @param addData
+     */
+    public EpuapDocument(
+			String docID, 
+    		String storeID, 
+			String fileName, 
+			Calendar date, 
+    		String inbox, 
+			String senderID,
+			String senderFirstName, 
+			String senderLastName, 
+    		String fromID, 
+    		String replyTo, 
+			String senderBox, 
+			String sendTo, 
+			String sendToName, 
+			String formName, 
+			Integer idUPO,
+			byte[] data, 
+    		byte[] addData 
+			) {
+		this.storeID = storeID;
+		this.fromID = fromID;
+		this.replyTo = replyTo;
+		this.inbox = inbox;
+		this.addData = addData;
+		this.addDataXML = new String(addData, UTF8);
+		this.date = date;
+		this.fileName = fileName;
+		this.fileType = null;
+		this.data = data;
+		this.dataXML = new String(data, UTF8);
+		this.senderID = senderID;
+		this.senderBox = senderBox;
+		this.senderFirstName = senderFirstName;
+		this.senderLastName = senderLastName;
+		this.nip = null;
+		this.pesel = null;
+		this.regon = null;
+		this.senderType = null;
+		this.digitalAccept = true;
+		this.docID = docID;
+		this.sha = Base64.encodeBase64String(DigestUtils.sha1(data));
+		this.sendTo = sendTo;
+		this.sendToName = sendToName;
+		this.formName = formName;
+		this.folder = null;
+		this.idUPO = idUPO;
+		extractAttachments();
+	}
+
+	/**
      * Reads contents of a XML source.
      * @param source
      * @return

@@ -76,7 +76,8 @@ public class EmergencyDownloadHelper {
         cal.setTime(sdf.parse(doc.getDataNadania()));
         byte[] data = Files.readAllBytes(path);
         byte[] addData = Base64.decodeBase64(doc.getDaneDodatkowe());
-        EpuapDocument eDoc = new EpuapDocument(doc.getDanePodmiotu().getIdentyfikator(), 
+        EpuapDocument eDoc = new EpuapDocument(
+        		doc.getDanePodmiotu().getIdentyfikator(), 
                 senderInfo, 
                 doc.getAdresOdpowiedzi(), 
                 doc.getAdresSkrytki(), 
