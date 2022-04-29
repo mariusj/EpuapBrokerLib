@@ -477,6 +477,8 @@ public class EpuapService {
                 } 
                 if (att2 != null) {
                     att.setStream(att2.getStream());
+                } else {
+                	LOG.error("Error attachment not downloaded {} in doc {}", att.getFileName(), edoc.getDocID());
                 }
             }
             store.addAttachment(edoc, att);
