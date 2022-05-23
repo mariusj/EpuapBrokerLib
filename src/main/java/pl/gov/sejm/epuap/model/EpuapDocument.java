@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -57,6 +58,8 @@ public class EpuapDocument {
             LoggerFactory.getLogger(EpuapDocument.class);
     
     private static final Charset UTF8 = Charset.forName("UTF-8");
+
+	private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
     private String storeID;
 
@@ -268,6 +271,9 @@ public class EpuapDocument {
 	    this.addData = null;
 	    this.addDataXML = readFromSource(meta.getMetadane());
 	    this.date = meta.getDataNadania() != null ? meta.getDataNadania().toGregorianCalendar() : null;
+	    if (this.date != null) {
+	    	this.date.setTimeZone(GMT);
+	    }
 	    this.fileName = meta.getNazwa();
 	    this.fileType = null;
 	    this.dataXML = readFromSource(body);
