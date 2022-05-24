@@ -723,8 +723,8 @@ public class EpuapService {
 
     /**
      * Returns a list of documents in the inbox.
-     * @param inbox
-     * @return
+     * @param inbox an inbox to get documents from
+     * @return a list of documents in the inbox (only metadata)
      */
 	public ZawartoscSkladuTyp listInbox(String inbox) {
 		SkladTyp sklad = new SkladTyp();
@@ -736,10 +736,19 @@ public class EpuapService {
 	
 	/**
 	 * Downloads a document with a given ID.
-	 * @return 
+	 * @return a document details 
 	 */
 	public pl.gov.epuap.ws.zarzadzaniedokumentami.DokumentTyp downloadDocument(int id) {
 		return zarzadzanieDokumentami.pobierzDokument(id, config.getOrg());
+	}
+	
+	/**
+	 * Removes a document from a box.
+	 * @param id an id of a document
+	 * @return true if document was removed
+	 */
+	public boolean deleteDocument(int id) {
+		return zarzadzanieDokumentami.usunDokument(id, config.getOrg());
 	}
 
 }
