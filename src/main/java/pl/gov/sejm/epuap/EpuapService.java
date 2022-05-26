@@ -107,30 +107,30 @@ public class EpuapService {
     private static final int STATUS_OK = 1;
 
     /** A configuration. */
-    private EpuapConfig config;
+    private final EpuapConfig config;
 
     /** The Pull service */
-    private Pull pull;
+    private final Pull pull;
 
     /** The Filerepo service */
-    private Filerepo repo;
+    private final Filerepo repo;
 
     /** The Skrytka service */
-    private Skrytka skrytka;
+    private final Skrytka skrytka;
     
-    private ZarzadzanieDokumentami zarzadzanieDokumentami;
+    private final ZarzadzanieDokumentami zarzadzanieDokumentami;
 
-    private DocumentBuilderFactory docBuilderFactory = 
+    private final DocumentBuilderFactory docBuilderFactory =
             DocumentBuilderFactory.newInstance();
     
     private DocumentBuilder docBuilder;
     
-    private TransformerFactory transformerFactory = 
+    private final TransformerFactory transformerFactory =
             TransformerFactory.newInstance();
 
-    private Bus bus;
+    private final Bus bus;
 
-    private org.apache.cxf.ext.logging.LoggingFeature loggingFeature;
+    private final org.apache.cxf.ext.logging.LoggingFeature loggingFeature;
     
 
     /**
@@ -546,7 +546,7 @@ public class EpuapService {
         	LOG.info("extracting zip file {}", zipAtt.getFileName());
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
             extractZip(zipAtt, tempDir);
-            try(DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir);){
+            try(DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir)){
                 for (Path path : dir) {
                     byte[] bytes = Files.readAllBytes(path);
                     EpuapAttachment unzipped = new EpuapAttachment(
@@ -599,7 +599,6 @@ public class EpuapService {
      * Downloads an attachment with given id.
      * @param docId an id of an attachment
      * @return a InputStream with attachment data
-     * @throws OdbierzFaultMsg 
      */
     public EpuapAttachment downloadAttachment(String docId) {
         LOG.info("downloading attachment {}", docId);
