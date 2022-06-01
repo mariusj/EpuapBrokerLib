@@ -59,10 +59,16 @@ public class Utils {
             zipEntry = zis.getNextEntry();
         }
         zis.closeEntry();
-        zis.close();
-        
+        zis.close();        
     }
     
+    /**
+     * Creates a new file based on a zip entry.
+     * @param destinationDir a directory where to create a file
+     * @param zipEntry a zip entry used to get name of the file
+     * @return a file
+     * @throws IOException
+     */
     private static File newFile(java.nio.file.Path destinationDir, ZipEntry zipEntry) throws IOException {
         File destFile = new File(destinationDir.toFile(), zipEntry.getName());
          
