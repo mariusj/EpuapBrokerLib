@@ -546,7 +546,7 @@ public class EpuapService {
         	LOG.info("extracting zip file {}", zipAtt.getFileName());
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
             extractZip(zipAtt, tempDir);
-            try(DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir)){
+			try (DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir)) {
                 for (Path path : dir) {
                     byte[] bytes = Files.readAllBytes(path);
                     EpuapAttachment unzipped = new EpuapAttachment(
@@ -561,14 +561,14 @@ public class EpuapService {
         }
     }
 
-    private void extractZip(EpuapAttachment zipAtt, Path tempDir) throws IOException {
-        try {
-        Utils.extractZip(tempDir, zipAtt.getStream());
-        } catch (IllegalArgumentException e) {
-        // extract files packed in DOS encoding
-        Utils.extractZip(tempDir, zipAtt.getStream(), Charset.forName("CP852"));
-        }
-    }
+	private void extractZip(EpuapAttachment zipAtt, Path tempDir) throws IOException {
+		try {
+			Utils.extractZip(tempDir, zipAtt.getStream());
+		} catch (IllegalArgumentException e) {
+			// extract files packed in DOS encoding
+			Utils.extractZip(tempDir, zipAtt.getStream(), Charset.forName("CP852"));
+		}
+	}
 
     /**
      * Confirms receiving of a document.
