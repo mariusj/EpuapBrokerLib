@@ -13,9 +13,9 @@
         <maven.compiler.release>11</maven.compiler.release>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.11.0</commons-io.version>
-        <cxf.version>3.4.5</cxf.version>
+        <cxf.version>3.4.7</cxf.version>
         <prometeus.simpleclient.version>0.5.0</prometeus.simpleclient.version>
-        <slf4j-api.version>1.7.33</slf4j-api.version>
+        <slf4j-api.version>1.7.36</slf4j-api.version>
     </properties>
     <dependencies>
         <dependency>
