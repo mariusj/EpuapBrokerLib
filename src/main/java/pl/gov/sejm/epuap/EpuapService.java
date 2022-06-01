@@ -620,7 +620,7 @@ public class EpuapService {
                     docId,
                     null);
             DataHandler file = downloaded.getFile();
-            setFileStreamToAttachment(attachment, file);
+            setFileStreamOnAttachment(attachment, file);
             return attachment;
         } catch (OdbierzFaultMsg e) {
             e.printStackTrace();
@@ -632,7 +632,7 @@ public class EpuapService {
         return null;
     }
 
-    private void setFileStreamToAttachment(EpuapAttachment attachment, DataHandler file) {
+    private void setFileStreamOnAttachment(EpuapAttachment attachment, DataHandler file) {
         try {
             InputStream stream = file.getInputStream();
             attachment.setStream(stream);
