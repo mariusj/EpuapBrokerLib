@@ -561,6 +561,12 @@ public class EpuapService {
         }
     }
 
+    /**
+     * Extracts a zip attachment to a specified directory. 
+     * @param zipAtt an attachment in zip format
+     * @param tempDir a temp directory
+     * @throws IOException
+     */
 	private void extractZip(EpuapAttachment zipAtt, Path tempDir) throws IOException {
 		try {
 			Utils.extractZip(tempDir, zipAtt.getStream());
