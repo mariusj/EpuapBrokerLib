@@ -107,30 +107,30 @@ public class EpuapService {
     private static final int STATUS_OK = 1;
 
     /** A configuration. */
-    private EpuapConfig config;
+    private final EpuapConfig config;
 
     /** The Pull service */
-    private Pull pull;
+    private final Pull pull;
 
     /** The Filerepo service */
-    private Filerepo repo;
+    private final Filerepo repo;
 
     /** The Skrytka service */
-    private Skrytka skrytka;
+    private final Skrytka skrytka;
     
-    private ZarzadzanieDokumentami zarzadzanieDokumentami;
+    private final ZarzadzanieDokumentami zarzadzanieDokumentami;
 
-    private DocumentBuilderFactory docBuilderFactory = 
+    private final DocumentBuilderFactory docBuilderFactory =
             DocumentBuilderFactory.newInstance();
     
     private DocumentBuilder docBuilder;
     
-    private TransformerFactory transformerFactory = 
+    private final TransformerFactory transformerFactory =
             TransformerFactory.newInstance();
 
-    private Bus bus;
+    private final Bus bus;
 
-    private org.apache.cxf.ext.logging.LoggingFeature loggingFeature;
+    private final org.apache.cxf.ext.logging.LoggingFeature loggingFeature;
     
 
     /**
@@ -364,7 +364,7 @@ public class EpuapService {
         	stylesheet = getXSLFor(xmlSource, store);
         }
         if (stylesheet == null) {
-        	// get xsl from wyr�nik
+        	// get xsl from wyróżnik
         	stylesheet = getXSLFor(doc.getDataXML(), store);
         }
         if (stylesheet != null) {
@@ -396,8 +396,7 @@ public class EpuapService {
 	            store.saveHTML(doc, html);
 	            return true;
 	        }
-		} catch (Throwable e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 			LOG.error("error saving HTML for document {} - {} ", doc.getDocID(), e.getMessage());
 		}
         return false;
@@ -447,7 +446,7 @@ public class EpuapService {
     }
 
     /**
-     * Extracts XSL from type associated with this XML (from  wyr�nik from CRD).
+     * Extracts XSL from type associated with this XML (from  wyróżnik from CRD).
      * @param dataXML an XML document
      * @param store a Store
      * @return a stylesheet
@@ -489,7 +488,7 @@ public class EpuapService {
             final Store store, 
             final String ssId, 
             final Source stylesheet)
-            throws TransformerConfigurationException, TransformerException {
+            throws TransformerException {
         LOG.info("Saving XSL {}", ssId);
         Transformer transformer = transformerFactory.newTransformer();
         StringWriter writer = new StringWriter();
@@ -527,7 +526,7 @@ public class EpuapService {
             store.addAttachment(edoc, att);
             if (config.isExtractZIP() 
                     && att.getFileName().toLowerCase().endsWith(".zip")) {
-                extractZIP(store, edoc, att);
+                extractAttachmentFromZipToStore(store, edoc, att);
             }
         }
         store.changeDocStatus(edoc, DocStatus.ATTACHMENTS_DOWNLOADED);
@@ -539,33 +538,36 @@ public class EpuapService {
      * @param parent a parent document
      * @param zipAtt a zipped file
      */
-    private void extractZIP(
+    private void extractAttachmentFromZipToStore(
             final Store store, 
             final EpuapDocument parent, 
             final EpuapAttachment zipAtt) {
         try {
         	LOG.info("extracting zip file {}", zipAtt.getFileName());
             java.nio.file.Path tempDir = Files.createTempDirectory("epuap");
-            try {
-            	Utils.extractZip(tempDir, zipAtt.getStream());
-            } catch (IllegalArgumentException e) {
-            	// extract files packed in DOS encoding
-            	Utils.extractZip(tempDir, zipAtt.getStream(), Charset.forName("CP852"));
-            }
-            DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir);
-            for (Path path : dir) {
-                byte[] bytes = Files.readAllBytes(path);
-                EpuapAttachment unzipped = new EpuapAttachment(
-                        path.getFileName().toString(), 
+            extractZip(zipAtt, tempDir);
+            try(DirectoryStream<Path> dir = Files.newDirectoryStream(tempDir)){
+                for (Path path : dir) {
+                    byte[] bytes = Files.readAllBytes(path);
+                    EpuapAttachment unzipped = new EpuapAttachment(
+                        path.getFileName().toString(),
                         null, null, bytes, null);
-                LOG.info("adding extracted attachment {}", path.getFileName().toString());
-                store.addAttachment(parent, unzipped);
+                    LOG.info("adding extracted attachment {}", path.getFileName());
+                    store.addAttachment(parent, unzipped);
+                }
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             LOG.error("error extracting zip file {} - {}", zipAtt.getFileName(), e.getMessage());
         }
-        
+    }
+
+    private void extractZip(EpuapAttachment zipAtt, Path tempDir) throws IOException {
+        try {
+        Utils.extractZip(tempDir, zipAtt.getStream());
+        } catch (IllegalArgumentException e) {
+        // extract files packed in DOS encoding
+        Utils.extractZip(tempDir, zipAtt.getStream(), Charset.forName("CP852"));
+        }
     }
 
     /**
@@ -597,7 +599,6 @@ public class EpuapService {
      * Downloads an attachment with given id.
      * @param docId an id of an attachment
      * @return a InputStream with attachment data
-     * @throws OdbierzFaultMsg 
      */
     public EpuapAttachment downloadAttachment(String docId) {
         LOG.info("downloading attachment {}", docId);
@@ -619,22 +620,25 @@ public class EpuapService {
                     docId,
                     null);
             DataHandler file = downloaded.getFile();
-            try {
-                InputStream stream = file.getInputStream();
-                attachment.setStream(stream);
-            } catch (IOException e) {
-                e.printStackTrace();
-                LOG.error(e.toString());
-            }
+            setFileStreamToAttachment(attachment, file);
             return attachment;
         } catch (OdbierzFaultMsg e) {
             e.printStackTrace();
             LOG.error(e.getFaultInfo().getKomunikat());
-        } catch (Throwable e) {
+        } catch (Exception e) {
         	e.printStackTrace();
         	LOG.error(e.getMessage());
         }
         return null;
+    }
+
+    private void setFileStreamToAttachment(EpuapAttachment attachment, DataHandler file) {
+        try {
+            InputStream stream = file.getInputStream();
+            attachment.setStream(stream);
+        } catch (IOException e) {
+            LOG.error("Error setting file stream to attachment - storeId: ." + attachment.getStoreID(), e);
+        }
     }
 
     /**
@@ -690,11 +694,10 @@ public class EpuapService {
      * @throws NadajFaultMsg 
      */
     public EpuapUPP send(final EpuapDocument doc) throws NadajFaultMsg {
-        EpuapUPP upp = send(doc.getSendTo(),
-                doc.getReplyTo(),
-                doc.getFileName(),
-                doc.getData());
-        return upp;
+        return send(doc.getSendTo(),
+            doc.getReplyTo(),
+            doc.getFileName(),
+            doc.getData());
     }
 
 
@@ -730,8 +733,7 @@ public class EpuapService {
 		SkladTyp sklad = new SkladTyp();
 		sklad.setNazwa(inbox);
 		sklad.setPodmiot(config.getOrg());
-		ZawartoscSkladuTyp zawartoscSkladu = zarzadzanieDokumentami.zawartoscSkladu(sklad);
-		return zawartoscSkladu;
+		return zarzadzanieDokumentami.zawartoscSkladu(sklad);
 	}
 	
 	/**
