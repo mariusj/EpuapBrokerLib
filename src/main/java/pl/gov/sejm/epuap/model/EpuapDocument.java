@@ -274,7 +274,8 @@ public class EpuapDocument {
 	    if (this.date != null) {
 	    	this.date.setTimeZone(GMT);
 	    }
-	    this.fileName = meta.getNazwa();
+	    boolean addXml = !meta.getNazwa().toLowerCase().endsWith(".xml");
+	    this.fileName = addXml ? meta.getNazwa() + ".xml" : meta.getNazwa();
 	    this.fileType = null;
 	    this.dataXML = readFromSource(body);
 	    this.data = dataXML != null ? dataXML.getBytes(Charset.forName("UTF-8")) : null;
