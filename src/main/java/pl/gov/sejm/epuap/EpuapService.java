@@ -35,6 +35,8 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.ByteDataSource;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -154,6 +156,11 @@ public class EpuapService {
             final BindingProvider port,
             final String url) {
         org.apache.cxf.endpoint.Client client = ClientProxy.getClient(port);
+        HTTPConduit http = (HTTPConduit) client.getConduit();
+        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        httpClientPolicy.setConnectionTimeout(5 * 60 * 1000);
+        httpClientPolicy.setReceiveTimeout(5 * 60 * 1000);
+        http.setClient(httpClientPolicy);
         if (config.isLoggingEnabled()) {
             loggingFeature.initialize(client, bus);
         }
