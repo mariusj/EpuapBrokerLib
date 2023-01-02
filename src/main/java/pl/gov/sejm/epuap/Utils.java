@@ -10,11 +10,18 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility methods
  *
  */
 public class Utils {
+
+	private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+	
+	public static final char[] INVALID_FILE_CHARS = {'"', '*', '<', '>', '?', '|', '\000', ':'};
 
     /**
      * Extracts a zip file to a specified directory.
@@ -70,16 +77,38 @@ public class Utils {
      * @throws IOException
      */
     private static File newFile(java.nio.file.Path destinationDir, ZipEntry zipEntry) throws IOException {
-        File destFile = new File(destinationDir.toFile(), zipEntry.getName());
+    	String correctedFilePath = correctFileName(zipEntry.getName());
+    	LOG.trace("creating file {} in {}", correctedFilePath, destinationDir.toString());
+        File destFile = new File(destinationDir.toFile(), correctedFilePath);
          
         String destDirPath = destinationDir.toFile().getCanonicalPath();
         String destFilePath = destFile.getCanonicalPath();
          
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+            throw new IOException("Entry is outside of the target dir: " + correctedFilePath);
         }
          
         return destFile;
     }
+
+    /**
+     * Corrects a file name to contain only valid characters.
+     * @param name
+     * @return
+     */
+	private static String correctFileName(String name) {
+		StringBuilder out = new StringBuilder(name.length());
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			for (char inv : INVALID_FILE_CHARS) {
+				if (c == inv) {
+					c = '_';
+					break;
+				}
+			}
+			out.append(c);
+		}
+		return out.toString();
+	}
 
 }
