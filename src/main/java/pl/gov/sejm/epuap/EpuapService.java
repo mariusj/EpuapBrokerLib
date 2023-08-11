@@ -726,6 +726,7 @@ public class EpuapService {
 	 * @return a document details 
 	 */
 	public pl.gov.epuap.ws.zarzadzaniedokumentami.DokumentTyp downloadDocument(int id) {
+		LOG.info("pobierzDokument {}", id);
 		return zarzadzanieDokumentami.pobierzDokument(id, config.getOrg());
 	}
 	
@@ -735,6 +736,7 @@ public class EpuapService {
 	 * @return true if document was removed
 	 */
 	public boolean deleteDocument(int id) {
+		LOG.info("usunDokument {}", id);
 		return zarzadzanieDokumentami.usunDokument(id, config.getOrg());
 	}
 

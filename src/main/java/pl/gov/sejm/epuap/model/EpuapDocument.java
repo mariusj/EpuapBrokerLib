@@ -117,6 +117,8 @@ public class EpuapDocument {
     
     private final Integer idUPO;
     
+    private final boolean xmlValid;
+    
     
     /**
      * Creates a document received from the ePUAP service.
@@ -186,15 +188,15 @@ public class EpuapDocument {
                 e.printStackTrace();
             }
         }
-        this.dataXML = dataXML;
+        this.dataXML = sanitizeXML(dataXML);
         this.formName = null;
         this.folder = null;
         this.idUPO = null;
 
-        this.extractAttachments();
+        this.xmlValid = this.extractAttachments();
     }
 
-    /**
+	/**
      * Creates a document that will be send using the ePUAP service.
      *
      * @param fromID sender identifier in ePUAP
@@ -221,7 +223,7 @@ public class EpuapDocument {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        this.dataXML = dataXML;
+        this.dataXML = sanitizeXML(dataXML);
         this.senderType = null;
         this.senderID = this.fromID;
         this.senderBox = null;
@@ -240,6 +242,7 @@ public class EpuapDocument {
         this.formName = null;
         this.folder = null;
         this.idUPO = null;
+        this.xmlValid = true;
     }
 
     /**
@@ -277,7 +280,7 @@ public class EpuapDocument {
 	    boolean addXml = !meta.getNazwa().toLowerCase().endsWith(".xml");
 	    this.fileName = addXml ? meta.getNazwa() + ".xml" : meta.getNazwa();
 	    this.fileType = null;
-	    this.dataXML = readFromSource(body);
+	    this.dataXML = sanitizeXML(readFromSource(body));
 	    this.data = dataXML != null ? dataXML.getBytes(Charset.forName("UTF-8")) : null;
 	    this.nip = null;
 	    this.pesel = null;
@@ -292,7 +295,7 @@ public class EpuapDocument {
 	    	this.formName = null;
 	    }
 	    this.folder = meta.getFolder();
-        this.extractAttachments();
+        this.xmlValid = this.extractAttachments();
 	}
 
     /**
@@ -344,7 +347,7 @@ public class EpuapDocument {
 		this.fileName = fileName;
 		this.fileType = null;
 		this.data = data;
-		this.dataXML = new String(data, UTF8);
+		this.dataXML = sanitizeXML(new String(data, UTF8));
 		this.senderID = senderID;
 		this.senderBox = senderBox;
 		this.senderFirstName = senderFirstName;
@@ -361,7 +364,26 @@ public class EpuapDocument {
 		this.formName = formName;
 		this.folder = null;
 		this.idUPO = idUPO;
-		extractAttachments();
+        this.xmlValid = this.extractAttachments();
+	}
+    
+    /**
+     * Removes BOM from XML.
+     * @param xml
+     * @return
+     */
+    private String sanitizeXML(String xml) {
+		if (xml == null) {
+			return null;
+		}
+		if (xml.length() > 0) {
+			if (xml.codePointAt(0) == 0xFEFF) {
+				return xml.substring(1);
+			} else {
+				return xml;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -635,6 +657,10 @@ public class EpuapDocument {
     public Integer getIdUPO() {
 		return idUPO;
 	}
+    
+    public boolean isXmlValid() {
+		return xmlValid;
+	}
 
     /**
      * Extracts a document id from additional data.
@@ -660,9 +686,9 @@ public class EpuapDocument {
     /**
      * Constructs a list of attachments embedded or referenced in this document.
      */
-    private void extractAttachments() {
+    private boolean extractAttachments() {
         if (this.dataXML == null) {
-            return;
+            return false;
         }
         try {
             org.w3c.dom.Document xmlDoc = parseXML(this.dataXML);
@@ -678,9 +704,12 @@ public class EpuapDocument {
                     attachments.add(attachment);
                 }
             }
+            return true;
         } catch (ParserConfigurationException | SAXException
                 | IOException | XPathExpressionException e) {
             e.printStackTrace();
+            LOG.error(this.dataXML);
+            return false;
         }
     }
 
