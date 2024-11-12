@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -14,8 +15,6 @@ import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,7 +27,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -41,6 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.xml.ws.BindingProvider;
 import pl.gov.epuap.ws.filerepo.FileRepoService;
 import pl.gov.epuap.ws.filerepo.Filerepo;
 import pl.gov.epuap.ws.filerepo.OdbierzFaultMsg;
@@ -443,10 +444,10 @@ public class EpuapService {
 				String xsl = store.loadStyleSheet(addr);
 	            if (xsl == null) {
 					try {
-						StreamSource stylesheet = new StreamSource(new URL(addr).openStream());
+						StreamSource stylesheet = new StreamSource(new URI(addr).toURL().openStream());
 		                saveStylesheet(store, addr, stylesheet);
 		                return stylesheet;
-					} catch (IOException | TransformerException e) {
+					} catch (IOException | TransformerException | URISyntaxException e) {
 						e.printStackTrace();
 					}
 	            } else {                
