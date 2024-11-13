@@ -14,7 +14,7 @@
         <commons-io.version>2.17.0</commons-io.version>
         <cxf.version>4.0.5</cxf.version>
         <slf4j-api.version>1.7.36</slf4j-api.version>
-        <xml.bind-api.version>4.0.2</xml.bind-api.version>
+        <xml.bind-api.version>3.0.1</xml.bind-api.version>
     </properties>
     <dependencies>
         <dependency>
@@ -78,7 +78,7 @@
                         <wsdlFile>esd.wsdl</wsdlFile>
                         <wsdlFile>ZarzadzanieDokumentami.wsdl</wsdlFile>
                     </wsdlFiles>
-                    <wsdlLocation>/WEB-INF/classes/wsdl/*</wsdlLocation>
+                    <wsdlLocation>/wsdl/*</wsdlLocation>
                     <vmArgs>
                         <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
                     </vmArgs>

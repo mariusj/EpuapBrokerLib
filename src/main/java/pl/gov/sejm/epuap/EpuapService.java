@@ -171,6 +171,7 @@ public class EpuapService {
         ctx.put("ws-security.asymmetric.signature.algorithm", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
         if (url != null) {
             ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
+            LOG.info("port addr {}", url);
         }
     }
 

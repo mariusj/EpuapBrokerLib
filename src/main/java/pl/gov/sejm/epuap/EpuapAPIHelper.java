@@ -1,8 +1,5 @@
 package pl.gov.sejm.epuap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.gov.epuap.ws.filerepo.OdbierzFaultMsg;
 import pl.gov.epuap.ws.skrytka.NadajFaultMsg;
 import pl.gov.sejm.epuap.model.DocStatus;
@@ -19,8 +16,6 @@ import pl.gov.sejm.epuap.model.EpuapUPP;
  */
 public class EpuapAPIHelper {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(EpuapAPIHelper.class);
-    
     private Store store;
     
     private EpuapService service;
@@ -55,18 +50,12 @@ public class EpuapAPIHelper {
      * @return a confirmation of sending a document
      * @throws NadajFaultMsg 
      */
-    public EpuapUPP sendDocument(final String docId) {
+    public EpuapUPP sendDocument(final String docId) throws NadajFaultMsg {
         EpuapDocument doc = store.getDocumentByStoreId(docId);
-		try {
-			EpuapUPP upp = service.send(doc);
-			store.saveUPP(docId, upp);
-	        store.changeDocStatus(doc, DocStatus.UPLOADED);
-	        return upp;
-		} catch (NadajFaultMsg e) {
-			e.printStackTrace();
-            LOG.error(e.getFaultInfo().getKomunikat());
-            return null;
-		}
+		EpuapUPP upp = service.send(doc);
+		store.saveUPP(docId, upp);
+        store.changeDocStatus(doc, DocStatus.UPLOADED);
+        return upp;
     }
     
     /**
