@@ -1,5 +1,5 @@
 include:
-  project: 'resources/dev_config'
+  project: 'infra/dev_config'
   file: 'gitlab/maven.yml'
 
 cache:
