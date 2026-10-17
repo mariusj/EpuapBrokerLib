@@ -1,12 +1,9 @@
 include:
-  project: 'infra/dev_config'
+  project: 'infra/build'
   file: 'gitlab/maven.yml'
 
-cache:
-  key: EpuapBrokerLib
-  paths:
-    - .m2/repository/
-    - target/
+build:
+  extends: .build
 
-deploy_mvn:
-  extends: .deploy_mvn
+publish:
+  extends: .publish
